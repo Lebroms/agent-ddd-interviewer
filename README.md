@@ -117,16 +117,7 @@ graph TB
 
 ### Docker Network
 
-All services communicate through a single Docker bridge network:
-
-```yaml
-networks:
-  rete_unica:
-    driver: bridge
-    name: rete_unica
-```
-
-This enables automatic DNS resolution between containers through the service name, for example `redis:6379`, `ollama:11434`, and `loki:3100`.
+All services communicate through a single Docker bridge network (rete_unica): this enables automatic DNS resolution between containers through the service name, for example `redis:6379`, `ollama:11434`, and `loki:3100`.
 
 ---
 
