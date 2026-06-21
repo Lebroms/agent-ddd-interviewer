@@ -1,92 +1,93 @@
-# 🏗️ Agente DDD Interviewer — Architettura a Microservizi
+# DDD Interviewer Agent - Microservices Architecture
 
-> **Un agente conversazionale basato su LLM che guida l'utente nella modellazione Domain-Driven Design (DDD), con un'infrastruttura a microservizi completamente osservabile.**
+> **An LLM-powered conversational agent that guides users through Domain-Driven Design (DDD) modeling, backed by a fully observable microservices infrastructure.**
 
-Il sistema intervista l'utente per comprendere il suo dominio di business, genera automaticamente un'architettura DDD strutturata (Bounded Contexts, Aggregates, Entities, Value Objects, Domain Events) e permette iterazioni di refinement con un meccanismo di draft/confirm safe-lock.
-
----
-
-## 📑 Indice
-
-- [Panoramica del Progetto](#-panoramica-del-progetto)
-- [Stack Tecnologico](#-stack-tecnologico)
-- [Architettura Generale dei Microservizi](#-architettura-generale-dei-microservizi)
-- [Comunicazione tra i Microservizi](#-comunicazione-tra-i-microservizi)
-- [Pipeline dei Workflow N8N](#-pipeline-dei-workflow-n8n)
-- [Stack di Osservabilità](#-stack-di-osservabilità)
-  - [Architettura dello Stack](#architettura-dello-stack)
-  - [OpenTelemetry Collector (Hub Centrale)](#opentelemetry-collector-hub-centrale)
-  - [Raccolta dei Log](#raccolta-dei-log)
-  - [Metriche](#metriche)
-  - [Correlazione tra Segnali in Grafana](#correlazione-tra-segnali-in-grafana)
-- [Frontend Chat UI](#-frontend-chat-ui)
-- [Struttura del Progetto](#-struttura-del-progetto)
-- [Guida all'Utilizzo](#-guida-allutilizzo)
-  - [Prerequisiti](#prerequisiti)
-  - [Avvio del Sistema](#avvio-del-sistema)
-  - [Configurazione di N8N](#configurazione-di-n8n)
-  - [Download del Modello LLM](#download-del-modello-llm)
-  - [Utilizzo dell'Agente](#utilizzo-dellagente)
-  - [Accesso alla Dashboard di Osservabilità](#accesso-alla-dashboard-di-osservabilità)
-  - [Arresto del Sistema](#arresto-del-sistema)
-- [Porte Esposte](#-porte-esposte)
-- [Licenza](#-licenza)
+The system interviews the user to understand their business domain, automatically generates a structured DDD architecture (Bounded Contexts, Aggregates, Entities, Value Objects, Domain Events), and supports refinement iterations through a draft/confirm safe-lock mechanism.
 
 ---
 
-## 🎯 Panoramica del Progetto
+## Table of Contents
 
-Il progetto implementa un **agente conversazionale intelligente** che assiste gli utenti nel processo di **Domain-Driven Design (DDD)**. Il sistema è organizzato come un'architettura a microservizi orchestrata tramite Docker Compose, con tre macro-aree funzionali:
-
-1. **Livello Applicativo** — N8N (orchestrazione workflow), Ollama (inferenza LLM), Redis (stato sessione)
-2. **Livello Presentazione** — Frontend HTML/JS con interfaccia chat
-3. **Livello Osservabilità** — Stack completo con OpenTelemetry, Loki, Prometheus e Grafana
-
-L'agente opera in **tre fasi principali**:
-- **Discovery**: intervista guidata per estrarre il dominio di business e generare un'architettura DDD in formato JSON
-- **Refinement**: l'utente può chiedere spiegazioni o proporre modifiche all'architettura generata
-- **Draft Decision**: meccanismo safe-lock per confermare o rifiutare le modifiche proposte
+- [Project Overview](#project-overview)
+- [Technology Stack](#technology-stack)
+- [General Microservices Architecture](#general-microservices-architecture)
+- [Communication Between Microservices](#communication-between-microservices)
+- [N8N Workflow Pipeline](#n8n-workflow-pipeline)
+- [Observability Stack](#observability-stack)
+  - [Stack Architecture](#stack-architecture)
+  - [OpenTelemetry Collector (Central Hub)](#opentelemetry-collector-central-hub)
+  - [Log Collection](#log-collection)
+  - [Metrics](#metrics)
+  - [Grafana](#grafana)
+- [Frontend Chat UI](#frontend-chat-ui)
+- [Project Structure](#project-structure)
+- [Usage Guide](#usage-guide)
+  - [Prerequisites](#prerequisites)
+  - [Starting the System](#starting-the-system)
+  - [N8N Configuration](#n8n-configuration)
+  - [Downloading the LLM Model](#downloading-the-llm-model)
+  - [Using the Agent](#using-the-agent)
+  - [Accessing the Observability Dashboard](#accessing-the-observability-dashboard)
+  - [Stopping the System](#stopping-the-system)
+- [Exposed Ports](#exposed-ports)
+- [License](#license)
 
 ---
 
-## 🛠️ Stack Tecnologico
+## Project Overview
 
-| Componente | Tecnologia | Versione | Ruolo |
+This project implements an **intelligent conversational agent** that assists users throughout the **Domain-Driven Design (DDD)** process. The system is organized as a microservices architecture orchestrated with Docker Compose, with three main functional areas:
+
+1. **Application Layer** - N8N (workflow orchestration), Ollama (LLM inference), Redis (session state)
+2. **Presentation Layer** - HTML/JS frontend with a chat interface
+3. **Observability Layer** - Complete stack with OpenTelemetry, Loki, Prometheus, and Grafana
+
+The agent operates in **three main phases**:
+
+- **Discovery**: guided interview to extract the business domain and generate a DDD architecture in JSON format
+- **Refinement**: the user can ask for explanations or propose changes to the generated architecture
+- **Draft Decision**: safe-lock mechanism to confirm or reject proposed changes
+
+---
+
+## Technology Stack
+
+| Component | Technology | Version | Role |
 |---|---|---|---|
-| **Orchestratore Workflow** | N8N | latest | Gestione pipeline agente multi-step |
-| **LLM Engine** | Ollama | latest | Inferenza modelli linguistici locali |
-| **Session Store** | Redis | Alpine | Stato sessione, chat history, JSON architettura |
-| **Metrics Exporter** | Redis Exporter | latest | Esposizione metriche Redis in formato Prometheus |
-| **Telemetry Hub** | OpenTelemetry Collector Contrib | 0.133.0 | Raccolta centralizzata logs, metriche |
-| **Log Aggregation** | Grafana Loki | 3.5.0 | Storage e query dei log |
-| **Metrics Storage** | Prometheus | 2.53.0 | Storage metriche time-series |
-| **Visualization** | Grafana | 12.2 | Dashboard, alerting, correlazione segnali |
-| **Frontend** | HTML/CSS/JS | — | Interfaccia chat utente |
+| **Workflow Orchestrator** | N8N | latest | Multi-step agent pipeline management |
+| **LLM Engine** | Ollama | latest | Local language model inference |
+| **Session Store** | Redis | Alpine | Session state, chat history, architecture JSON |
+| **Metrics Exporter** | Redis Exporter | latest | Exposes Redis metrics in Prometheus format |
+| **Telemetry Hub** | OpenTelemetry Collector Contrib | 0.133.0 | Centralized log and metric collection |
+| **Log Aggregation** | Grafana Loki | 3.5.0 | Log storage and querying |
+| **Metrics Storage** | Prometheus | 2.53.0 | Time-series metrics storage |
+| **Visualization** | Grafana | 12.2 | Dashboards, alerting, signal correlation |
+| **Frontend** | HTML/CSS/JS | - | User chat interface |
 
 ---
 
-## 🏛️ Architettura Generale dei Microservizi
+## General Microservices Architecture
 
-Il sistema è composto da **8 container Docker** interconnessi su una singola rete bridge (`rete_unica`). L'architettura segue una separazione netta tra servizi applicativi e servizi di osservabilità.
+The system consists of **8 Docker containers** connected to a single bridge network (`rete_unica`). The architecture clearly separates application services from observability services.
 
 ```mermaid
 graph TB
-    subgraph "🌐 Livello Presentazione"
-        FE["🖥️ Frontend Chat UI<br/><i>index.html</i><br/>Porta: file locale"]
+    subgraph "Presentation Layer"
+        FE["Frontend Chat UI<br/><i>index.html</i><br/>Port: local file"]
     end
 
-    subgraph "⚙️ Livello Applicativo"
-        N8N["🔄 N8N<br/><i>Orchestratore Workflow</i><br/>Porta: 5678"]
-        OLLAMA["🧠 Ollama<br/><i>LLM Engine</i><br/>Porta: 11434"]
-        REDIS["💾 Redis<br/><i>Session Store</i><br/>Porta: 6379"]
+    subgraph "Application Layer"
+        N8N["N8N<br/><i>Workflow Orchestrator</i><br/>Port: 5678"]
+        OLLAMA["Ollama<br/><i>LLM Engine</i><br/>Port: 11434"]
+        REDIS["Redis<br/><i>Session Store</i><br/>Port: 6379"]
     end
 
-    subgraph "📊 Livello Osservabilità"
-        OTEL["📡 OTel Collector<br/><i>Hub Telemetria</i><br/>Porte: 4317, 4318"]
-        LOKI["📝 Loki<br/><i>Log Aggregation</i><br/>Porta: 3100"]
-        PROM["📈 Prometheus<br/><i>Metrics Storage</i><br/>Porta: 9090"]
-        GRAFANA["📊 Grafana<br/><i>Visualization</i><br/>Porta: 8080"]
-        REXP["📤 Redis Exporter<br/><i>Metrics Bridge</i><br/>Porta: 9121"]
+    subgraph "Observability Layer"
+        OTEL["OTel Collector<br/><i>Telemetry Hub</i><br/>Ports: 4317, 4318"]
+        LOKI["Loki<br/><i>Log Aggregation</i><br/>Port: 3100"]
+        PROM["Prometheus<br/><i>Metrics Storage</i><br/>Port: 9090"]
+        GRAFANA["Grafana<br/><i>Visualization</i><br/>Port: 8080"]
+        REXP["Redis Exporter<br/><i>Metrics Bridge</i><br/>Port: 9121"]
     end
 
     FE -->|"HTTP POST<br/>/webhook/*"| N8N
@@ -114,9 +115,9 @@ graph TB
     style REXP fill:#C0392B,stroke:#922B21,color:#fff
 ```
 
-### Rete Docker
+### Docker Network
 
-Tutti i servizi comunicano su un'unica rete bridge Docker:
+All services communicate through a single Docker bridge network:
 
 ```yaml
 networks:
@@ -125,13 +126,13 @@ networks:
     name: rete_unica
 ```
 
-Questo permette la risoluzione DNS automatica tra i container tramite il nome del servizio (es. `redis:6379`, `ollama:11434`, `loki:3100`).
+This enables automatic DNS resolution between containers through the service name, for example `redis:6379`, `ollama:11434`, and `loki:3100`.
 
 ---
 
-## 🔗 Comunicazione tra i Microservizi
+## Communication Between Microservices
 
-La comunicazione tra i microservizi utilizza diversi protocolli in base al tipo di interazione. Il diagramma seguente mostra tutti i flussi di comunicazione con i relativi protocolli:
+Microservices communicate through different protocols depending on the interaction type. The following diagram shows all communication flows and their protocols:
 
 ```mermaid
 flowchart LR
@@ -139,13 +140,13 @@ flowchart LR
         UI["Chat UI"]
     end
 
-    subgraph Applicativo
+    subgraph Application
         N8N["N8N"]
         OLL["Ollama"]
         RED["Redis"]
     end
 
-    subgraph Osservabilità
+    subgraph Observability
         OTEL["OTel Collector"]
         LOK["Loki"]
         PRO["Prometheus"]
@@ -167,7 +168,7 @@ flowchart LR
 
     OTEL -. "Docker Socket + filelog<br/>container logs" .-> OTEL
 
-    OTEL -- "OTLP HTTP → /otlp" --> LOK
+    OTEL -- "OTLP HTTP -> /otlp" --> LOK
     OTEL -- "Remote Write<br/>/api/v1/write" --> PRO
 
     GRA -- "HTTP query" --> LOK
@@ -184,44 +185,44 @@ flowchart LR
     style REX fill:#C0392B,color:#fff
 ```
 
-### Tabella Riepilogativa dei Protocolli
+### Protocol Summary Table
 
-| Sorgente | Destinazione | Protocollo | Porta | Descrizione |
+| Source | Destination | Protocol | Port | Description |
 |---|---|---|---|---|
-| Frontend | N8N | HTTP REST | 5678 | Webhook per messaggi chat, decisioni draft, polling status |
-| N8N | Ollama | HTTP API | 11434 | Chiamate LLM per generazione/analisi DDD |
-| N8N | Redis | Redis Protocol | 6379 | Lettura/scrittura stato sessione, chat history, JSON |
-| N8N | OTel Collector | OTLP HTTP | 4318 | Telemetria strutturata (logs, metrics) |
-| Redis | Redis Exporter | Redis Protocol | 6379 | Scraping metriche Redis |
-| Redis Exporter | OTel Collector | Prometheus HTTP | 9121 | Endpoint `/metrics` scraping ogni 10s |
-| OTel Collector | Loki | OTLP HTTP | 3100 | Log di tutti i container + log strutturati N8N |
-| OTel Collector | Prometheus | Remote Write | 9090 | Metriche via `/api/v1/write` |
-| Grafana | Loki, Prom | HTTP | varie | Query per visualizzazione e correlazione |
+| Frontend | N8N | HTTP REST | 5678 | Webhooks for chat messages, draft decisions, and status polling |
+| N8N | Ollama | HTTP API | 11434 | LLM calls for DDD generation and analysis |
+| N8N | Redis | Redis Protocol | 6379 | Session state, chat history, and JSON read/write |
+| N8N | OTel Collector | OTLP HTTP | 4318 | Structured telemetry (logs, metrics) |
+| Redis | Redis Exporter | Redis Protocol | 6379 | Redis metrics scraping |
+| Redis Exporter | OTel Collector | Prometheus HTTP | 9121 | `/metrics` endpoint scraped every 10 seconds |
+| OTel Collector | Loki | OTLP HTTP | 3100 | Logs from all containers and structured N8N logs |
+| OTel Collector | Prometheus | Remote Write | 9090 | Metrics through `/api/v1/write` |
+| Grafana | Loki, Prometheus | HTTP | various | Queries for visualization and correlation |
 
 ---
 
-## 🔄 Pipeline dei Workflow N8N
+## N8N Workflow Pipeline
 
-Il sistema utilizza un'architettura **Orchestrator-Workers**, implementata attraverso workflow N8N interconnessi. Questa architettura sostituisce una pipeline rigida con un modello agenziale flessibile, dove un orchestratore centrale delega compiti a tool specializzati (Agenti).
+The system uses an **Orchestrator-Workers** architecture implemented through interconnected N8N workflows. This architecture replaces a rigid pipeline with a flexible agentic model, where a central orchestrator delegates tasks to specialized tools (agents).
 
 ```mermaid
 flowchart TD
     subgraph "Routing & Initial Entry"
         W1_WH["Webhook<br/>POST /chat-locale"]
-        W1_RG["Controlla Sessione<br/>Redis"]
+        W1_RG["Check Session<br/>Redis"]
         W1_WH --> W1_RG
     end
 
     subgraph "Orchestrator Agent"
-        ORC["🧠 Orchestrator LLM<br/>(Planner & Decision Maker)"]
+        ORC["Orchestrator LLM<br/>(Planner & Decision Maker)"]
         W1_RG --> ORC
     end
 
     subgraph "Tool Agents (Workers)"
-        T_WR["📝 Writer Agent<br/>(Aggiorna stato/JSON)"]
-        T_EX["🔎 Explainer Agent<br/>(Risponde a domande)"]
-        T_RV["⚖️ Reviewer Agent<br/>(Valuta Coerenza DDD)"]
-        T_AR["🏗️ Architect Agent<br/>(Propone Strutture)"]
+        T_WR["Writer Agent<br/>(Updates state/JSON)"]
+        T_EX["Explainer Agent<br/>(Answers questions)"]
+        T_RV["Reviewer Agent<br/>(Evaluates DDD consistency)"]
+        T_AR["Architect Agent<br/>(Proposes structures)"]
     end
 
     ORC -->|"Delegate"| T_WR
@@ -247,85 +248,94 @@ flowchart TD
     style T_AR fill:#E74C3C,color:#fff
 ```
 
-### Dettaglio dell'Architettura ad Agenti
+### Agent Architecture Details
 
-L'agente non segue più un flusso lineare fisso (Discovery → Refinement). Il controllo è centralizzato nell'**Orchestrator**, un LLM programmato con prompt di Reflection e Planning.
+The agent no longer follows a fixed linear flow (Discovery -> Refinement). Control is centralized in the **Orchestrator**, an LLM programmed with Reflection and Planning prompts.
 
 #### 1. Routing Endpoint
-Il **punto d'ingresso** riceve le richieste dal frontend. Gestisce la storia della chat (caricandola da Redis) e passa il contesto aggiornato all'Orchestratore.
+
+The **entry point** receives requests from the frontend. It manages chat history by loading it from Redis and passes the updated context to the Orchestrator.
 
 #### 2. Orchestrator Agent
-Il "cervello" del sistema. Analizza l'input dell'utente e il JSON corrente dell'architettura DDD. Invece di rispondere direttamente, decide quale **Worker Tool** chiamare per svolgere compiti specifici. L'Orchestratore può anche terminare la conversazione per richiedere ulteriori dettagli all'utente.
+
+The system's "brain". It analyzes the user's input and the current DDD architecture JSON. Instead of responding directly, it decides which **Worker Tool** to call for specific tasks. The Orchestrator can also end the conversation turn by asking the user for more details.
 
 #### 3. Worker Agents (Tools)
-I workflow subordinati richiamati dall'Orchestratore:
-- **Writer Agent**: L'unico autorizzato a mutare l'architettura JSON. Riceve le decisioni validate e aggiorna lo stato su Redis.
-- **Explainer Agent**: Analizza il JSON corrente e risponde a dubbi o richieste di spiegazioni dell'utente.
-- **Reviewer Agent**: Valuta se le modifiche proposte rispettano i principi del Domain-Driven Design o se creano incongruenze.
-- **Architect Agent**: Supporta la generazione iniziale o estese mutazioni strutturali dell'architettura.
+
+Subordinate workflows called by the Orchestrator:
+
+- **Writer Agent**: the only agent authorized to mutate the architecture JSON. It receives validated decisions and updates the state in Redis.
+- **Explainer Agent**: analyzes the current JSON and answers the user's questions or explanation requests.
+- **Reviewer Agent**: evaluates whether proposed changes follow Domain-Driven Design principles or create inconsistencies.
+- **Architect Agent**: supports initial generation or broader structural mutations of the architecture.
 
 #### 4. Polling Workflow
-Il frontend esegue **polling ogni 3 secondi** su questo endpoint per verificare lo stato delle operazioni asincrone. Il workflow controlla tre chiavi Redis:
-- `discovery_json` — risultato dell'architettura corrente
-- `draft_json` — bozza di modifica (proposta ma non ancora approvata)
-- `draft_status` — stato del draft
+
+The frontend performs **polling every 3 seconds** on this endpoint to check the status of asynchronous operations. The workflow checks three Redis keys:
+
+- `discovery_json` - result of the current architecture
+- `draft_json` - change draft (proposed but not yet approved)
+- `draft_status` - draft status
 
 #### 5. Draft Decision Workflow
-Implementa il meccanismo **safe-lock** per la transizione di stato JSON:
-- **Conferma** → il `draft_json` viene promosso a `discovery_json` (l'architettura corrente viene sovrascritta)
-- **Rifiuta** → il `draft_json` viene eliminato
-In entrambi i casi, la memoria temporanea della sessione di modifica viene cancellata.
+
+This implements the **safe-lock** mechanism for JSON state transitions:
+
+- **Confirm** -> `draft_json` is promoted to `discovery_json` (the current architecture is overwritten)
+- **Reject** -> `draft_json` is deleted
+
+In both cases, the temporary memory for the modification session is cleared.
 
 ---
 
-## 📡 Stack di Osservabilità
+## Observability Stack
 
-Lo stack di osservabilità implementa i **due pilastri dell'osservabilità moderna**: **Logs** e **Metrics**, con aggregazione e visualizzazione in Grafana.
+The observability stack implements the **two pillars of modern observability**: **Logs** and **Metrics**, with aggregation and visualization in Grafana.
 
-### Architettura dello Stack
+### Stack Architecture
 
 ```mermaid
 flowchart TD
-    subgraph "📤 Sorgenti Dati"
-        N8N_SRC["N8N<br/>(OTLP nativo)"]
+    subgraph "Data Sources"
+        N8N_SRC["N8N<br/>(native OTLP)"]
         DOCKER_SRC["Docker Containers<br/>(stdout/stderr JSON logs)"]
         REDIS_SRC["Redis Exporter<br/>(Prometheus /metrics)"]
     end
 
-    subgraph "📡 Hub Centrale: OpenTelemetry Collector"
+    subgraph "Central Hub: OpenTelemetry Collector"
         direction TB
         subgraph "Receivers"
             RCV_OTLP["OTLP Receiver<br/>HTTP :4318 + gRPC :4317"]
-            RCV_FILELOG["Receiver Creator<br/>(Dynamic Filelog per container)"]
-            RCV_PROM["Prometheus Receiver<br/>(Scraping redis-exporter ed n8n)"]
+            RCV_FILELOG["Receiver Creator<br/>(Dynamic filelog per container)"]
+            RCV_PROM["Prometheus Receiver<br/>(Scrapes redis-exporter and n8n)"]
         end
 
         subgraph "Processors"
-            PROC_GBA["GroupByAttrs<br/>log.iostream → resource attr"]
+            PROC_GBA["GroupByAttrs<br/>log.iostream -> resource attr"]
             PROC_RES["Resource Processor<br/>+ domain, bounded_context,<br/>service.name"]
             PROC_BATCH["Batch Processor<br/>timeout: 1s, size: 100"]
         end
 
         subgraph "Exporters"
-            EXP_LOKI["OTLP/HTTP Exporter<br/>→ Loki :3100/otlp"]
-            EXP_PROM["Prometheus Remote Write<br/>→ Prometheus :9090/api/v1/write"]
+            EXP_LOKI["OTLP/HTTP Exporter<br/>-> Loki :3100/otlp"]
+            EXP_PROM["Prometheus Remote Write<br/>-> Prometheus :9090/api/v1/write"]
             EXP_DEBUG["Debug Exporter<br/>(console)"]
         end
     end
 
-    subgraph "💾 Backend Storage"
-        LOKI_BE["📝 Loki<br/>TSDB + Filesystem<br/>Schema v13"]
-        PROM_BE["📈 Prometheus<br/>TSDB"]
+    subgraph "Backend Storage"
+        LOKI_BE["Loki<br/>TSDB + Filesystem<br/>Schema v13"]
+        PROM_BE["Prometheus<br/>TSDB"]
     end
 
-    subgraph "📊 Visualizzazione"
-        GRAFANA_VIZ["Grafana<br/>2 Datasources pre-configurati"]
+    subgraph "Visualization"
+        GRAFANA_VIZ["Grafana<br/>2 pre-configured datasources"]
     end
 
     N8N_SRC -->|"OTLP HTTP/gRPC<br/>logs + metrics"| RCV_OTLP
-    N8N_SRC -->|"HTTP scrape /metrics<br/>ogni 10s"| RCV_PROM
+    N8N_SRC -->|"HTTP scrape /metrics<br/>every 10s"| RCV_PROM
     DOCKER_SRC -->|"filelog<br/>/var/lib/docker/containers/*"| RCV_FILELOG
-    REDIS_SRC -->|"HTTP scrape /metrics<br/>ogni 10s"| RCV_PROM
+    REDIS_SRC -->|"HTTP scrape /metrics<br/>every 10s"| RCV_PROM
 
     RCV_OTLP --> PROC_GBA
     RCV_FILELOG --> PROC_GBA
@@ -360,64 +370,66 @@ flowchart TD
     style GRAFANA_VIZ fill:#FF6600,color:#fff
 ```
 
-### OpenTelemetry Collector (Hub Centrale)
+### OpenTelemetry Collector (Central Hub)
 
-L'**OpenTelemetry Collector Contrib** (`otel/opentelemetry-collector-contrib:0.133.0`) è il cuore dello stack di osservabilità. Agisce come hub centralizzato che riceve, processa e instrada tutti i segnali di telemetria.
+The **OpenTelemetry Collector Contrib** (`otel/opentelemetry-collector-contrib:0.133.0`) is the core of the observability stack. It acts as a centralized hub that receives, processes, and routes all telemetry signals.
 
 #### Extensions
-- **Docker Observer** (`docker_observer`): scopre automaticamente tutti i container Docker in esecuzione via Docker socket (`/var/run/docker.sock`). Per ogni container espone: name, container_id, image, port, labels.
 
-#### Receivers (3 sorgenti)
+- **Docker Observer** (`docker_observer`): automatically discovers all running Docker containers through the Docker socket (`/var/run/docker.sock`). For each container, it exposes name, container_id, image, port, and labels.
 
-| Receiver | Tipo | Sorgente | Segnali |
+#### Receivers (3 sources)
+
+| Receiver | Type | Source | Signals |
 |---|---|---|---|
-| `otlp` | OTLP HTTP/gRPC | N8N | Logs strutturati + Metrics |
-| `receiver_creator/docker` | Dynamic Filelog | Tutti i container Docker | Logs (stdout/stderr) |
-| `prometheus` | Prometheus Scraper | Redis Exporter e n8n | Metrics |
+| `otlp` | OTLP HTTP/gRPC | N8N | Structured logs + metrics |
+| `receiver_creator/docker` | Dynamic Filelog | All Docker containers | Logs (stdout/stderr) |
+| `prometheus` | Prometheus Scraper | Redis Exporter and n8n | Metrics |
 
-Il **Receiver Creator** è particolarmente sofisticato: crea **dinamicamente** un receiver `filelog` per **ogni container** scoperto dal `docker_observer`. La regola `type == "container" && name != "otel-collector"` esclude il collector stesso per evitare feedback loops. Per ogni container, il log path viene risolto dinamicamente:
+The **Receiver Creator** is especially sophisticated: it **dynamically** creates a `filelog` receiver for **each container** discovered by the `docker_observer`. The rule `type == "container" && name != "otel-collector"` excludes the collector itself to avoid feedback loops. For each container, the log path is resolved dynamically:
 
-```
+```text
 /var/lib/docker/containers/{container_id}/{container_id}-json.log
 ```
 
-I log Docker in formato JSON (es. `{"log":"...","stream":"stdout","time":"..."}`) vengono parsati con operatori pipeline:
-1. **json_parser** — estrae il body del log e il timestamp
-2. **move (body)** — sposta `attributes.log` → `body`
-3. **move (stream)** — rinomina `attributes.stream` → `attributes["log.iostream"]`
+Docker logs in JSON format, for example `{"log":"...","stream":"stdout","time":"..."}`, are parsed through pipeline operators:
 
-I **resource attributes** (`container.name`, `container.id`, `container.image.name`) vengono iniettati dinamicamente dal Docker Observer, rendendo ogni log filtrabile per container in Grafana.
+1. **json_parser** - extracts the log body and timestamp
+2. **move (body)** - moves `attributes.log` -> `body`
+3. **move (stream)** - renames `attributes.stream` -> `attributes["log.iostream"]`
 
-#### Processors (3 stage pipeline)
+The **resource attributes** (`container.name`, `container.id`, `container.image.name`) are injected dynamically by Docker Observer, making each log filterable by container in Grafana.
 
-| Processor | Funzione |
+#### Processors (3-stage pipeline)
+
+| Processor | Function |
 |---|---|
-| `groupbyattrs` | Promuove `log.iostream` da log attribute a **resource attribute** (necessario per Loki) |
-| `resource` | Aggiunge attributi DDD statici: `domain=core_domain`, `bounded_context=domain_modeling`, `service.name=agent_1_interviewer` |
-| `batch` | Raggruppa i record in batch (timeout 1s, max 100 record) per efficienza di rete |
+| `groupbyattrs` | Promotes `log.iostream` from log attribute to **resource attribute** (required by Loki) |
+| `resource` | Adds static DDD attributes: `domain=core_domain`, `bounded_context=domain_modeling`, `service.name=agent_1_interviewer` |
+| `batch` | Groups records into batches (1s timeout, max 100 records) for network efficiency |
 
-#### Exporters (4 destinazioni)
+#### Exporters (3 destinations)
 
-| Exporter | Protocollo | Destinazione | Segnali |
+| Exporter | Protocol | Destination | Signals |
 |---|---|---|---|
 | `otlphttp/loki` | OTLP HTTP | `loki:3100/otlp` | Logs |
 | `prometheusremotewrite` | Remote Write | `prometheus:9090/api/v1/write` | Metrics |
-| `debug` | Console | stdout | Tutti (debug) |
+| `debug` | Console | stdout | All signals (debug) |
 
-#### Pipelines del Collector
+#### Collector Pipelines
 
 ```mermaid
 flowchart LR
     subgraph "Pipeline: Logs"
         L_RCV["otlp + receiver_creator/docker"]
-        L_PROC["groupbyattrs → resource → batch"]
+        L_PROC["groupbyattrs -> resource -> batch"]
         L_EXP["otlphttp/loki + debug"]
         L_RCV --> L_PROC --> L_EXP
     end
 
     subgraph "Pipeline: Metrics"
         M_RCV["otlp + prometheus"]
-        M_PROC["resource → batch"]
+        M_PROC["resource -> batch"]
         M_EXP["prometheusremotewrite + debug"]
         M_RCV --> M_PROC --> M_EXP
     end
@@ -425,59 +437,59 @@ flowchart LR
     style L_RCV fill:#F1C40F,color:#000
     style L_PROC fill:#F39C12,color:#fff
     style L_EXP fill:#D35400,color:#fff
-    style T_RCV fill:#3498DB,color:#fff
-    style T_PROC fill:#F39C12,color:#fff
-    style T_EXP fill:#2471A3,color:#fff
     style M_RCV fill:#E74C3C,color:#fff
     style M_PROC fill:#F39C12,color:#fff
     style M_EXP fill:#A93226,color:#fff
 ```
 
-### Raccolta dei Log
+### Log Collection
 
-Loki riceve i log dall'OTel Collector e li indicizza con **label OTLP**. La configurazione `otlp_config` in Loki definisce quali resource attributes vengono promossi a label indicizzate:
+Loki receives logs from the OTel Collector and indexes them with **OTLP labels**. The `otlp_config` in Loki defines which resource attributes are promoted to indexed labels:
 
-| Label | Sorgente | Descrizione |
+| Label | Source | Description |
 |---|---|---|
-| `service_name` | OTel resource processor | Nome del servizio (`agent_1_interviewer`) |
-| `container_name` | Docker Observer | Nome leggibile del container (es. `agente_interviewer_n8n`) |
-| `container_id` | Docker Observer | ID del container Docker |
-| `container_image_name` | Docker Observer | Immagine Docker (es. `docker.n8n.io/n8nio/n8n`) |
-| `log_iostream` | GroupByAttrs processor | Stream del log (`stdout` / `stderr`) |
-| `domain` | OTel resource processor | Dominio DDD (`core_domain`) |
+| `service_name` | OTel resource processor | Service name (`agent_1_interviewer`) |
+| `container_name` | Docker Observer | Human-readable container name, for example `agente_interviewer_n8n` |
+| `container_id` | Docker Observer | Docker container ID |
+| `container_image_name` | Docker Observer | Docker image, for example `docker.n8n.io/n8nio/n8n` |
+| `log_iostream` | GroupByAttrs processor | Log stream (`stdout` / `stderr`) |
+| `domain` | OTel resource processor | DDD domain (`core_domain`) |
 | `bounded_context` | OTel resource processor | Bounded Context (`domain_modeling`) |
 
-Loki è configurato con:
-- **Schema TSDB v13** per indexing efficiente
-- **Retenzione**: reject log più vecchi di 7 giorni
+Loki is configured with:
+
+- **TSDB v13 schema** for efficient indexing
+- **Retention**: rejects logs older than 7 days
 - **Rate limiting**: 10 MB/s ingestion rate per tenant
-- **Compactor**: ottimizza lo storage ogni 10 minuti
+- **Compactor**: optimizes storage every 10 minutes
 
-### Metriche
+### Metrics
 
-Le metriche arrivano a Prometheus attraverso tre canali:
-1. **OTLP da N8N** → OTel Collector → Prometheus Remote Write
-2. **Scraping N8N** → N8N Endpoint `/metrics` (:5678) → OTel Collector (Prometheus receiver) → Prometheus Remote Write
-3. **Scraping Redis** → Redis Exporter (:9121) → OTel Collector (Prometheus receiver) → Prometheus Remote Write
+Metrics reach Prometheus through three channels:
 
-> **Nota**: Prometheus è configurato esclusivamente in modalità **Remote Write receiver** (`--web.enable-remote-write-receiver`). Non esegue scraping diretto — tutte le metriche transitano per l'OTel Collector.
+1. **OTLP from N8N** -> OTel Collector -> Prometheus Remote Write
+2. **N8N scraping** -> N8N `/metrics` endpoint (:5678) -> OTel Collector (Prometheus receiver) -> Prometheus Remote Write
+3. **Redis scraping** -> Redis Exporter (:9121) -> OTel Collector (Prometheus receiver) -> Prometheus Remote Write
 
-Il Redis Exporter espone metriche come:
-- Connessioni attive e totali
-- Memoria utilizzata
-- Operazioni al secondo
+> **Note**: Prometheus is configured exclusively in **Remote Write receiver** mode (`--web.enable-remote-write-receiver`). It does not perform direct scraping; all metrics pass through the OTel Collector.
+
+The Redis Exporter exposes metrics such as:
+
+- Active and total connections
+- Used memory
+- Operations per second
 - Keyspace statistics
-- Latenza dei comandi
+- Command latency
 
 ### Grafana
 
-Grafana è pre-configurato con **2 datasource**:
+Grafana is pre-configured with **2 datasources**:
 
 ```mermaid
 flowchart LR
     subgraph Grafana
-        LOKI_DS["📝 Loki<br/>(Default Datasource)"]
-        PROM_DS["📈 Prometheus"]
+        LOKI_DS["Loki<br/>(Default Datasource)"]
+        PROM_DS["Prometheus"]
     end
 
     style LOKI_DS fill:#F1C40F,color:#000
@@ -486,243 +498,259 @@ flowchart LR
 
 ---
 
-## 💬 Frontend Chat UI
+## Frontend Chat UI
 
-Il frontend è una **Single Page Application** (SPA) HTML/CSS/JS che implementa un'interfaccia chat interattiva, servita come file statico locale.
+The frontend is an HTML/CSS/JS **Single Page Application** (SPA) that implements an interactive chat interface, served as a local static file.
 
-### Funzionalità principali:
-- **Chat multi-turn** con l'agente DDD
-- **Sessione persistente** via `localStorage` (`sessionId`)
-- **Tre modalità di interazione**:
-  - **Discovery**: l'agente intervista l'utente
-  - **Explain**: l'utente chiede spiegazioni sull'architettura
-  - **Modify**: l'utente richiede modifiche strutturali
-- **Rendering JSON** con syntax highlighting e pulsante "Copia JSON"
-- **Rendering Markdown** per documenti architetturali (tramite `marked.js`)
-- **Meccanismo di draft** con bottoni Conferma/Rifiuta e doppia conferma (safe-lock)
-- **Polling asincrono** ogni 3 secondi per operazioni di lunga durata
-- **Animazioni di caricamento**: indicatore typing (3 dots) + barra di progresso + testo animato
-- **Design responsive** con supporto mobile
+### Main Features
 
-### Endpoint Webhook utilizzati:
+- **Multi-turn chat** with the DDD agent
+- **Persistent session** through `localStorage` (`sessionId`)
+- **Three interaction modes**:
+  - **Discovery**: the agent interviews the user
+  - **Explain**: the user asks questions about the architecture
+  - **Modify**: the user requests structural changes
+- **JSON rendering** with syntax highlighting and a "Copy JSON" button
+- **Markdown rendering** for architecture documents through `marked.js`
+- **Draft mechanism** with Confirm/Reject buttons and double confirmation (safe-lock)
+- **Asynchronous polling** every 3 seconds for long-running operations
+- **Loading animations**: typing indicator (3 dots), progress bar, and animated text
+- **Responsive design** with mobile support
 
-| Endpoint | Metodo | Descrizione |
+### Webhook Endpoints Used
+
+| Endpoint | Method | Description |
 |---|---|---|
-| `/webhook/chat-locale` | POST | Invio messaggio utente (con `message`, `sessionId`, `action`) |
-| `/webhook/check-status-locale` | GET | Polling stato operazioni asincrone |
-| `/webhook/draft-decision-locale` | POST | Conferma/rifiuto modifiche proposte |
+| `/webhook/chat-locale` | POST | Sends user messages with `message`, `sessionId`, and `action` |
+| `/webhook/check-status-locale` | GET | Polls asynchronous operation status |
+| `/webhook/draft-decision-locale` | POST | Confirms or rejects proposed changes |
 
 ---
 
-## 📂 Struttura del Progetto
+## Project Structure
 
-```
+```text
 Progetto_Microservizi/
-│
-├── 📄 docker-compose.yml          # Definizione di tutti i 8 servizi e della rete
-├── 📄 .gitignore                  # Esclusioni Git (dati runtime, segreti, log)
-├── 📄 README.md                   # Questo file
-│
-├── 📁 frontend/                   # Livello Presentazione
-│   └── 📄 index.html              # SPA Chat UI (HTML + CSS + JS integrati)
-│
-├── 📁 workflow/                   # Workflow N8N (export JSON)
-│   ├── 📄 Routing_locale.json             # Routing: instradamento messaggi
-│   ├── 📄 DISCOVERY WORKFLOW_locale.json  # Discovery: intervista DDD multi-turn
-│   ├── 📄 REFINEMENT WORKFLOW_locale.json # Refinement: explain + modify
-│   ├── 📄 POLLING WORKFLOW_LOCALE.json    # Polling: status check asincrono
-│   └── 📄 DRAFT DECISION WORKFLOW_locale.json # Draft Decision: conferma/rifiuto
-│
-├── 📁 otel-collector/             # Configurazione OTel Collector
-│   └── 📄 collector.yaml          # Receivers, Processors, Exporters, Pipelines
-│
-├── 📁 loki/                       # Configurazione Loki
-│   └── 📄 loki-config.yml         # Schema TSDB, limiti, OTLP label config
-│
-├── 📁 prometheus/                 # Configurazione Prometheus
-│   └── 📄 prometheus.yml          # Remote Write receiver (no scraping diretto)
-│
-├── 📁 grafana/                    # Configurazione Grafana
-│   └── 📁 provisioning/
-│       ├── 📁 datasources/
-│       │   └── 📄 datasources.yml # 2 datasources: Loki, Prometheus
-│       └── 📁 dashboards/
-│           └── 📄 dashboard.yml   # Provisioning automatico dashboard
-│
-├── 📁 Data_N8N/                   # 🔒 Volume persistente N8N (gitignored)
-├── 📁 Data_Ollama/                # 🔒 Volume persistente Ollama/modelli (gitignored)
-├── 📁 Data_Redis/                 # 🔒 Volume persistente Redis (gitignored)
-└── 📁 .runtime/                   # 🔒 Dati runtime Loki/Prometheus/Grafana (gitignored)
+|
++-- docker-compose.yml          # Defines all 8 services and the network
++-- .gitignore                  # Git exclusions (runtime data, secrets, logs)
++-- README.md                   # This file
+|
++-- frontend/                   # Presentation Layer
+|   +-- index.html              # Chat UI SPA (integrated HTML + CSS + JS)
+|
++-- workflow/                   # N8N workflows (JSON exports)
+|   +-- Routing_locale.json             # Routing: message dispatching
+|   +-- DISCOVERY WORKFLOW_locale.json  # Discovery: multi-turn DDD interview
+|   +-- REFINEMENT WORKFLOW_locale.json # Refinement: explain + modify
+|   +-- POLLING WORKFLOW_LOCALE.json    # Polling: asynchronous status check
+|   +-- DRAFT DECISION WORKFLOW_locale.json # Draft Decision: confirm/reject
+|
++-- otel-collector/             # OTel Collector configuration
+|   +-- collector.yaml          # Receivers, processors, exporters, pipelines
+|
++-- loki/                       # Loki configuration
+|   +-- loki-config.yml         # TSDB schema, limits, OTLP label config
+|
++-- prometheus/                 # Prometheus configuration
+|   +-- prometheus.yml          # Remote Write receiver (no direct scraping)
+|
++-- grafana/                    # Grafana configuration
+|   +-- provisioning/
+|       +-- datasources/
+|       |   +-- datasources.yml # 2 datasources: Loki, Prometheus
+|       +-- dashboards/
+|           +-- dashboard.yml   # Automatic dashboard provisioning
+|
++-- Data_N8N/                   # Persistent N8N volume (gitignored)
++-- Data_Ollama/                # Persistent Ollama/model volume (gitignored)
++-- Data_Redis/                 # Persistent Redis volume (gitignored)
++-- .runtime/                   # Runtime data for Loki/Prometheus/Grafana (gitignored)
 ```
 
 ---
 
-## 🚀 Guida all'Utilizzo
+## Usage Guide
 
-### Prerequisiti
+### Prerequisites
 
-| Requisito | Versione Minima | Note |
+| Requirement | Minimum Version | Notes |
 |---|---|---|
-| **Docker** | 20.10+ | Con supporto Docker Compose V2 |
-| **Docker Compose** | 2.x | Integrato in Docker Desktop |
-| **RAM disponibile** | ≥ 8 GB | Ollama + modello LLM richiedono molta memoria |
-| **Spazio disco** | ≥ 10 GB | Per modelli LLM e dati osservabilità |
-| **Sistema Operativo** | Windows / macOS / Linux | Docker Desktop o Docker Engine |
+| **Docker** | 20.10+ | With Docker Compose V2 support |
+| **Docker Compose** | 2.x | Integrated in Docker Desktop |
+| **Available RAM** | >= 8 GB | Ollama + LLM model require significant memory |
+| **Disk space** | >= 10 GB | For LLM models and observability data |
+| **Operating System** | Windows / macOS / Linux | Docker Desktop or Docker Engine |
 
-> ⚠️ **Nota per Windows**: Docker Desktop deve essere avviato con il backend WSL2. L'OTel Collector richiede accesso a `/var/lib/docker/containers` e `/var/run/docker.sock`, funzionalità disponibili solo con il backend Linux/WSL2.
+> **Windows note**: Docker Desktop must be started with the WSL2 backend. The OTel Collector requires access to `/var/lib/docker/containers` and `/var/run/docker.sock`, which are available only with the Linux/WSL2 backend.
 
-### Avvio del Sistema
+### Starting the System
 
-1. **Clonare il repository:**
+1. **Clone the repository:**
+
    ```bash
-   git clone https://github.com/<tuo-username>/Progetto_Microservizi.git
+   git clone https://github.com/<your-username>/Progetto_Microservizi.git
    cd Progetto_Microservizi
    ```
 
-2. **Avviare tutti i servizi:**
+2. **Start all services:**
+
    ```bash
    docker compose up -d
    ```
-   Questo comando avvia tutti e 8 i container in ordine, rispettando le dipendenze (`depends_on`):
-   - Prima: Loki, Redis, Ollama
-   - Poi: OTel Collector, Prometheus, Redis Exporter
-   - Infine: Grafana, N8N
 
-3. **Verificare lo stato dei container:**
+   This command starts all 8 containers in order, respecting their dependencies (`depends_on`):
+
+   - First: Loki, Redis, Ollama
+   - Then: OTel Collector, Prometheus, Redis Exporter
+   - Finally: Grafana, N8N
+
+3. **Check container status:**
+
    ```bash
    docker compose ps
    ```
-   Tutti i container dovrebbero mostrare stato `Up` o `running`.
 
-4. **Consultare i log (opzionale):**
+   All containers should show the `Up` or `running` status.
+
+4. **Inspect logs (optional):**
+
    ```bash
    docker compose logs -f
    ```
 
-### Configurazione di N8N
+### N8N Configuration
 
-Al primo avvio, N8N richiede una configurazione iniziale:
+On first startup, N8N requires initial configuration:
 
-1. **Accedere a N8N**: aprire `http://localhost:5678` nel browser
-2. **Creare un account locale** (email + password, solo locale)
-3. **Importare i workflow**: per ciascun file nella cartella `workflow/`:
-   - Andare su **Workflow** → **Import from File**
-   - Selezionare il file JSON corrispondente
-   - Ripetere per tutti e 5 i workflow, che costituiscono la nuova architettura Agentica.
-4. **Configurare le credenziali Redis**:
-   - In N8N, andare su **Credentials** → **New Credential**
-   - Tipo: **Redis**
-   - Host: `redis` (nome del servizio Docker)
-   - Porta: `6379`
-   - Salvare
-5. **Attivare i workflow**:
-   - Aprire ciascun workflow e attivare il toggle **Active** (in alto a destra)
-   - I workflow che espongono webhook devono essere attivi: `Routing_locale`, `POLLING WORKFLOW_LOCALE`, `DRAFT DECISION WORKFLOW_locale`
+1. **Access N8N**: open `http://localhost:5678` in your browser.
+2. **Create a local account** (email + password, local only).
+3. **Import the workflows**: for each file in the `workflow/` folder:
+   - Go to **Workflow** -> **Import from File**
+   - Select the corresponding JSON file
+   - Repeat for all 5 workflows, which make up the new agentic architecture
+4. **Configure Redis credentials**:
+   - In N8N, go to **Credentials** -> **New Credential**
+   - Type: **Redis**
+   - Host: `redis` (Docker service name)
+   - Port: `6379`
+   - Save
+5. **Activate the workflows**:
+   - Open each workflow and enable the **Active** toggle in the top-right corner
+   - Workflows exposing webhooks must be active: `Routing_locale`, `POLLING WORKFLOW_LOCALE`, `DRAFT DECISION WORKFLOW_locale`
 
-### Download del Modello LLM
+### Downloading the LLM Model
 
-Ollama si avvia senza modelli precaricati. È necessario scaricare almeno un modello:
+Ollama starts without preloaded models. At least one model must be downloaded:
 
 ```bash
-# Accedere al container Ollama
+# Access the Ollama container
 docker exec -it agente_interviewer_ollama bash
 
-# Scaricare un modello (esempio con llama3.2)
+# Download a model (example with llama3.2)
 ollama pull llama3.2
 
-# Oppure un modello più leggero per test rapidi
+# Or use a lighter model for quick tests
 ollama pull phi3:mini
 ```
 
-> 💡 **Suggerimento**: il modello scelto deve essere coerente con quello configurato nei nodi "AI Agent" dei workflow N8N. Verificare i nodi LLM nei workflow Discovery e Refinement.
+> **Tip**: the chosen model must match the one configured in the N8N "AI Agent" nodes. Check the LLM nodes in the Discovery and Refinement workflows.
 
-### Utilizzo dell'Agente
+### Using the Agent
 
-1. **Aprire il frontend**: aprire il file `frontend/index.html` direttamente nel browser (doppio click o `File → Open`)
+1. **Open the frontend**: open `frontend/index.html` directly in the browser by double-clicking it or using `File -> Open`.
 
-2. **Fase Discovery**:
-   - Scrivere un messaggio descrivendo il proprio dominio di business
-   - L'agente porrà domande per comprendere bounded contexts, entities, aggregates, etc.
-   - Al termine, verrà generata un'architettura DDD in formato JSON
-   - Un'animazione "Generazione architettura in corso..." indica che il processo è in esecuzione
+2. **Discovery phase**:
+   - Write a message describing your business domain
+   - The agent asks questions to understand bounded contexts, entities, aggregates, and related concepts
+   - At the end, a DDD architecture is generated in JSON format
+   - A "Generating architecture..." animation indicates that the process is running
 
-3. **Fase Refinement**:
-   - Dopo la generazione, appariranno due bottoni: **Chiedi Spiegazione** e **Richiedi Modifica**
-   - **Spiegazione**: porre domande sull'architettura generata
-   - **Modifica**: richiedere cambiamenti strutturali
+3. **Refinement phase**:
+   - After generation, two buttons appear: **Ask for Explanation** and **Request Change**
+   - **Explanation**: ask questions about the generated architecture
+   - **Change**: request structural changes
 
-4. **Draft Decision** (solo per modifiche):
-   - L'agente proporrà una bozza di modifica
-   - Due bottoni: **Conferma Modifica** / **Rifiuta Modifica**
-   - Meccanismo **safe-lock**: viene richiesta una seconda conferma prima di applicare la modifica
-   - Se confermata, l'architettura corrente viene aggiornata
-   - Se rifiutata, si torna all'architettura precedente
+4. **Draft Decision** (changes only):
+   - The agent proposes a change draft
+   - Two buttons appear: **Confirm Change** / **Reject Change**
+   - The **safe-lock** mechanism requests a second confirmation before applying the change
+   - If confirmed, the current architecture is updated
+   - If rejected, the previous architecture remains active
 
-5. **Nuova Chat**:
-   - Cliccare il bottone "Nuova Chat" nell'header per resettare la sessione
+5. **New Chat**:
+   - Click the "New Chat" button in the header to reset the session
 
-### Accesso alla Dashboard di Osservabilità
+### Accessing the Observability Dashboard
 
-| Servizio | URL | Credenziali |
+| Service | URL | Credentials |
 |---|---|---|
-| **Grafana** | [http://localhost:8080](http://localhost:8080) | `admin` / `admin` (accesso anonimo abilitato) |
-| **Prometheus** | [http://localhost:9090](http://localhost:9090) | Nessuna |
-| **Loki** (API) | [http://localhost:3100](http://localhost:3100) | Nessuna |
-| **N8N** | [http://localhost:5678](http://localhost:5678) | Credenziali create al primo avvio |
+| **Grafana** | [http://localhost:8080](http://localhost:8080) | `admin` / `admin` (anonymous access enabled) |
+| **Prometheus** | [http://localhost:9090](http://localhost:9090) | None |
+| **Loki** (API) | [http://localhost:3100](http://localhost:3100) | None |
+| **N8N** | [http://localhost:5678](http://localhost:5678) | Credentials created on first startup |
 
-#### Esplorare i Log in Grafana
-1. Accedere a Grafana → **Explore**
-2. Selezionare **Loki** come datasource
-3. Usare LogQL per filtrare, ad esempio:
+#### Exploring Logs in Grafana
+
+1. Access Grafana -> **Explore**
+2. Select **Loki** as the datasource
+3. Use LogQL to filter, for example:
+
    ```logql
    {container_name="agente_interviewer_n8n"} |= "error"
    ```
+
    ```logql
    {container_name=~"agente_interviewer.*"}
    ```
 
-#### Metriche Redis in Grafana
-1. Grafana → **Explore** → **Prometheus**
-2. Query di esempio:
+#### Redis Metrics in Grafana
+
+1. Grafana -> **Explore** -> **Prometheus**
+2. Example queries:
+
    ```promql
    redis_connected_clients
    ```
+
    ```promql
    rate(redis_commands_total[5m])
    ```
 
-#### Dashboard Globale Pre-configurata
-All'avvio del sistema, Grafana carica automaticamente tramite provisioning una dashboard centralizzata.
-1. Accedere a Grafana
-2. Andare su **Dashboards** (icona a sinistra) → **General**
-3. Selezionare la dashboard **Agente DDD Interviewer - Observability**
-4. Questa dashboard fornisce una vista consolidata su tutti i microservizi, includendo:
-   - **N8N**: Esecuzioni dei workflow, latenze, memoria attiva
-   - **Ollama**: Richieste generate, elaborazioni LLM e GPU usage (se applicabile)
-   - **Redis**: Stato della cache, memoria, e hit rate
-   - **OTel Collector**: Code di esportazione dei log e stato ingestion
+#### Pre-configured Global Dashboard
 
-### Arresto del Sistema
+When the system starts, Grafana automatically loads a centralized dashboard through provisioning.
+
+1. Access Grafana
+2. Go to **Dashboards** (left icon) -> **General**
+3. Select the **Agente DDD Interviewer - Observability** dashboard
+4. This dashboard provides a consolidated view of all microservices, including:
+   - **N8N**: workflow executions, latencies, active memory
+   - **Ollama**: generated requests, LLM processing, and GPU usage when applicable
+   - **Redis**: cache state, memory, and hit rate
+   - **OTel Collector**: log export queues and ingestion status
+
+### Stopping the System
 
 ```bash
-# Fermare tutti i servizi
+# Stop all services
 docker compose down
 
-# Fermare e rimuovere anche i volumi (reset completo)
+# Stop and remove volumes as well (full reset)
 docker compose down -v
 ```
 
 ---
 
-## 🔌 Porte Esposte
+## Exposed Ports
 
-| Porta | Servizio | Protocollo | Descrizione |
+| Port | Service | Protocol | Description |
 |---|---|---|---|
 | `5678` | N8N | HTTP | UI + Webhook API |
 | `6379` | Redis | Redis | Session store |
-| `8080` | Grafana | HTTP | Dashboard (mappata da :3000 interna) |
+| `8080` | Grafana | HTTP | Dashboard (mapped from internal :3000) |
 | `9090` | Prometheus | HTTP | Metrics UI + Remote Write |
-| `9121` | Redis Exporter | HTTP | Endpoint `/metrics` |
+| `9121` | Redis Exporter | HTTP | `/metrics` endpoint |
 | `3100` | Loki | HTTP | Log API + OTLP endpoint |
 | `4317` | OTel Collector | gRPC | OTLP gRPC receiver |
 | `4318` | OTel Collector | HTTP | OTLP HTTP receiver |
@@ -730,6 +758,6 @@ docker compose down -v
 
 ---
 
-## 📄 Licenza
+## License
 
-Questo progetto è sviluppato per scopi accademici e didattici.
+This project is developed for academic and educational purposes.
