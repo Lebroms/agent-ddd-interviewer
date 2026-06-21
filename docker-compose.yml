@@ -80,7 +80,7 @@ services:
       - N8N_LOG_LEVEL=info
       - N8N_METRICS=true
       - N8N_METRICS_INCLUDE_DEFAULT_METRICS=true
-      - N8N_LOG_OUTPUT=otlp
+      - N8N_LOG_OUTPUT=console,otlp
       - N8N_DIAGNOSTICS_ENABLED=false
       # OpenTelemetry: abilita invio logs/metrics al Collector (traces disabilitate)
       - N8N_OTEL_ENABLED=true

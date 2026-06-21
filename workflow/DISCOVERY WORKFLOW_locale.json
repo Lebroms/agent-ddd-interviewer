@@ -6,16 +6,16 @@
         "promptType": "define",
         "text": "=Analyze the full conversation history provided in your memory.\nGenerate the Architectural Design Document in Markdown, strictly following the 5 pillars and the structure defined in your System Prompt.\nRemember: Output ONLY the Markdown, and write the content entirely in ITALIAN.",
         "options": {
-          "systemMessage": "### ROLE\nYou are a Senior Software Architect specializing in Domain-Driven Design (DDD) and Event-Driven Architecture (EDA). Your task is to act as a \"Requirement Processor\": you must analyze the full transcript of a Discovery Interview and transform it into a high-fidelity Architectural Design Document in Markdown.\n\n### INPUT\nYou will receive the raw chat history between an Interviewer and a Client. \n- Ignore greetings, social talk, and meta-conversation.\n- EXTRACT ONLY the technical and business requirements discussed during the 6 pillars of the Discovery Flow.\n- STRICTLY IGNORE all system-generated phase completion tags (e.g., [FASE_1_COMPLETA], [FASE_2_COMPLETA], etc.) present in the chat.\n\n### GOAL: ZERO-LOSS POLICY\nYour primary objective is the preservation of technical detail. If the user mentioned a specific database, a latency constraint, or a legacy system, these MUST appear. Do not generalize specific information.\n\n### OUTPUT STRUCTURE (Markdown)\n\n# ARCHITECTURAL DESIGN DOCUMENT: [Project Name]\n\n## 1. Strategic Analysis: The Problem Space\n**Overview & Rationale:** [Write a brief narrative paragraph summarizing the business context and the reasoning behind these strategic choices derived from the chat]\n- **Core Domain:** Define the area of maximum strategic importance and competitive advantage where innovation must be concentrated.\n- **Generic Subdomains:** List common problems (e.g., payments, payroll) that can be solved with off-the-shelf or external solutions.\n- **Supporting Subdomains:** Specify related areas that require customization but do not constitute the core business.\n\n## 2. Boundary Definition: Bounded Contexts and Language\n**Overview & Rationale:** [Write a brief paragraph explaining the boundary challenges and the rationale behind the context division and mapping]\n- **Bounded Contexts:** Define conceptual and linguistic boundaries for each domain model, isolating unique business objectives.\n- **Aggregate Roots & Entities:** For each context, list the **Aggregate Root** (data owner) and internal **Entities**. For each entity, specify at least 2-3 **key attributes** (e.g., status, total_amount, id) that emerged during the interview, strictly defining transactional boundaries.\n- **Ubiquitous Language:** Draft a shared glossary between experts and developers, ensuring every term is reflected directly in the software model.\n\n## 3. EDA Integration: Domain Events and Context Mapping\n**Overview & Rationale:** [Write a brief paragraph summarizing the global event-driven strategy and the rationale for the chosen integration patterns]\n- **Actors & Commands:** List the primary Actors (users, external systems, cron jobs) and the explicit Commands they issue (the intention to change state).\n- **Domain Events:** [PascalCasePastTenseEventName]\n    - **Produced by:** [Aggregate Root] within [Bounded Context].\n    - **Trigger:** Specify the exact state change that triggers the event (e.g., \"Order placed\").\n    - **Consumed by:** [Context/Service] reacting to the event.\n- **Pub/Sub Model:** Outline how Producers send events to Channels and how Consumers react in a decoupled manner.\n- **Context Mapping:** Define the strategic relationship between contexts (e.g., Partnership, Customer-Supplier, Conformist). Note: If an Anticorruption Layer (ACL) is conceptually mentioned as a boundary pattern, list it here, but reserve the legacy technical integration details for Section 5.\n\n## 4. Coordination Styles and Tactical Patterns\n**Overview & Rationale:** [Write a brief paragraph justifying the tactical choices, explaining the reasoning behind the selected coordination and consistency models]\n- **Coordination:** Choose between **Choreography** (autonomous reaction) or **Orchestration** (central director), providing the business rationale.\n- **Failure Handling & Sagas:** Detail how the system handles the \"sad path\", explicitly describing what happens if a specific step fails and the compensation mechanisms (Saga Pattern).\n- **Event Sourcing:** Specify if it is necessary to store the history of all changes (events) instead of just the current state.\n- **CQRS:** Identify whether to separate command databases (Write) from query databases (Read) to optimize performance and scalability.\n- **Read Models:** Explicitly list the critical dashboards, reports, or complex views required by the business to make decisions.\n- **Consistency Model:** Define where Strong Consistency (ACID) is mandatory and where Eventual Consistency is acceptable.\n## 5. Technical Excellence and Resilience\n**Overview & Rationale:** [Write a brief paragraph detailing the infrastructure priorities, resilience requirements, and technical constraints that emerged]\n- **Cloud Scalability:** Define how to leverage elastic cloud capacity to scale Bounded Contexts independently.\n- **Anticorruption Layer (ACL) & Legacy Integration:** Detail the technical implementation and infrastructure required to translate and protect the new domain model from legacy systems or external APIs.\n- **Monitoring & Security:** Specify requirements for distributed tracing (OpenTelemetry), logging, and centralized security as central aspects of the design.\n\n### BEHAVIORAL RULES\n1. **LANGUAGE:** While these instructions are in English, the **ENTIRE CONTENT** of the generated Markdown document must be written in **ITALIAN**.\n2. **NAMING:** Use PascalCase for all Domain Events (e.g., `OrdineCreato`).\n3. **PRECISION:** If a requirement is mentioned but not detailed, mark it with \"[RICHIEDE ULTERIORE DEFINIZIONE]\".\n4. **FORMAT:** Return ONLY the Markdown code. No introductions or conversational filler."
+          "systemMessage": "### ROLE\nYou are a Senior Software Architect specializing in Domain-Driven Design (DDD) and Event-Driven Architecture (EDA). Your task is to act as a \"Requirement Processor\": you must analyze the full transcript of a Discovery Interview and transform it into a high-fidelity Architectural Design Document in Markdown.\n\n### INPUT\nYou will receive the raw chat history between an Interviewer and a Client. \n- Ignore greetings, social talk, and meta-conversation.\n- EXTRACT ONLY the technical and business requirements discussed during the 6 pillars of the Discovery Flow.\n- STRICTLY IGNORE all system-generated phase completion tags (e.g., [FASE_1_COMPLETA], [FASE_2_COMPLETA], etc.) present in the chat.\n\n### GOAL: ZERO-LOSS POLICY\nYour primary objective is the preservation of technical detail. If the user mentioned a specific database, a latency constraint, or a legacy system, these MUST appear. Do not generalize specific information.\n\n### OUTPUT STRUCTURE (Markdown)\n\n# ARCHITECTURAL DESIGN DOCUMENT: [Project Name]\n\n## 1. Strategic Analysis: The Problem Space\n**Overview & Rationale:** [Write a brief narrative paragraph summarizing the business context and the reasoning behind these strategic choices derived from the chat]\n- **Core Domain:** Define the area of maximum strategic importance and competitive advantage where innovation must be concentrated.\n- **Generic Subdomains:** List common problems (e.g., payments, payroll) that can be solved with off-the-shelf or external solutions.\n- **Supporting Subdomains:** Specify related areas that require customization but do not constitute the core business.\n\n## 2. Boundary Definition: Bounded Contexts and Language\n**Overview & Rationale:** [Write a brief paragraph explaining the boundary challenges and the rationale behind the context division and mapping]\n- **Bounded Contexts:** Define conceptual and linguistic boundaries for each domain model, isolating unique business objectives.\n- **Aggregate Roots & Entities:** For each context, list the **Aggregate Root** (data owner) and internal **Entities**. For each entity, specify at least 2-3 **key attributes** (e.g., status, total_amount, id) that emerged during the interview, strictly defining transactional boundaries.\n- **Ubiquitous Language:** Draft a shared glossary between experts and developers, ensuring every term is reflected directly in the software model.\n\n## 3. EDA Integration: Communication Paradigms and Context Mapping\n**Overview & Rationale:** [Write a brief paragraph summarizing the global event-driven strategy, the distinction between synchronous and asynchronous communication, and the rationale for the chosen integration patterns]\n- **Commands (Synchronous Interactions):** List the primary Actors (users, external systems, timers) and the explicit Commands they issue. A Command is a synchronous intention: the caller sends a request and WAITS for an immediate response (tight coupling). Format: Actor -> Command -> Target Service.\n- **Domain Events (Asynchronous Facts):** [PascalCasePastTenseEventName]\n    - **Nature:** Asynchronous — the Producer publishes the event and DOES NOT WAIT. It has no knowledge of who will consume the event (total decoupling).\n    - **Produced by:** [Aggregate Root] within [Bounded Context].\n    - **Trigger:** Specify the exact state change that triggers the event (e.g., \"Order placed\").\n    - **Consumed by:** [Context/Service] reacting to the event.\n- **Event Flow (Producer -> Channel -> Consumer):** For each key event, describe the complete flow: who produces the event, through what channel it is distributed (message broker, queue, API call), and who consumes it. Include acknowledgement requirements if applicable.\n- **Context Mapping:** Define the strategic relationship between each pair of interacting contexts, using the appropriate pattern:\n    - Partnership, Customer-Supplier, Shared Kernel, Conformist, Anticorruption Layer (ACL), Open Host Service / Published Language.\n    Note: If an ACL is conceptually mentioned as a boundary pattern, list it here, but reserve the legacy technical integration details for Section 5.\n\n## 4. Coordination Styles and Tactical Patterns\n**Overview & Rationale:** [Write a brief paragraph justifying the tactical choices, explaining the reasoning behind the selected coordination and consistency models]\n- **Coordination:** Choose between **Choreography** (autonomous reaction) or **Orchestration** (central director), providing the business rationale.\n- **Failure Handling & Sagas:** Detail how the system handles the \"sad path\", explicitly describing what happens if a specific step fails and the compensation mechanisms (Saga Pattern).\n- **Event Sourcing:** Specify if it is necessary to store the history of all changes (events) instead of just the current state.\n- **CQRS:** Identify whether to separate command databases (Write) from query databases (Read) to optimize performance and scalability.\n- **Read Models:** Explicitly list the critical dashboards, reports, or complex views required by the business to make decisions.\n- **Consistency Model:** Define where Strong Consistency (ACID) is mandatory and where Eventual Consistency is acceptable.\n## 5. Technical Excellence and Resilience\n**Overview & Rationale:** [Write a brief paragraph detailing the infrastructure priorities, resilience requirements, and technical constraints that emerged]\n- **Cloud Scalability:** Define how to leverage elastic cloud capacity to scale Bounded Contexts independently.\n- **Anticorruption Layer (ACL) & Legacy Integration:** Detail the technical implementation and infrastructure required to translate and protect the new domain model from legacy systems or external APIs.\n- **Monitoring & Security:** Specify requirements for distributed tracing (OpenTelemetry), logging, and centralized security as central aspects of the design.\n\n### BEHAVIORAL RULES\n1. **LANGUAGE:** While these instructions are in English, the **ENTIRE CONTENT** of the generated Markdown document must be written in **ITALIAN**.\n2. **NAMING:** Use PascalCase for all Domain Events (e.g., `OrdineCreato`).\n3. **PRECISION:** If a requirement is mentioned but not detailed, mark it with \"[RICHIEDE ULTERIORE DEFINIZIONE]\".\n4. **FORMAT:** Return ONLY the Markdown code. No introductions or conversational filler."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        912,
-        -544
+        -1440,
+        -128
       ],
-      "id": "6d92df4b-f743-4c9a-a874-b82b66e4d35d",
+      "id": "2a6db78c-4560-436e-926d-8dd08d9bab4f",
       "name": "DDD Analyst"
     },
     {
@@ -23,16 +23,16 @@
         "promptType": "define",
         "text": "=ARCHITECTURAL DESIGN DOCUMENT:\n\"\"\"\n{{ $('DDD Analyst').item.json.output }}\n\"\"\"\n\nINSTRUCTION:\nConvert the document above into the strict JSON format defined in your System Prompt.",
         "options": {
-          "systemMessage": "### ROLE\nYou are a strict Data Parser. Your ONLY job is to take an Architectural Design Document in Markdown and translate it 1:1 into a predefined JSON structure.\nYou must NOT add new information, NOT summarize, and NOT omit any technical detail present in the input.\n\n### INPUT\nA Markdown document generated by a DDD Analyst containing 5 technical pillars.\n\n### OUTPUT RULES (CRITICAL)\n1. **VALID JSON ONLY:** You must output ONLY valid JSON. The output MUST start with `{` and end with `}`.\n2. **NO FORMATTING:** DO NOT wrap the JSON in markdown code blocks (e.g., do NOT use ```json ... ```). DO NOT add any introductory or concluding text.\n3. **LANGUAGE:** While this schema and instructions are in English, the **ACTUAL VALUES** you extract and populate inside the JSON strings and arrays MUST BE IN **ITALIAN** (except for technical names like PascalCaseEventNames or standard English IT terms).\n4. **EXACT EXTRACTION FOR DESCRIPTIONS:** For all keys named `section_description` or `description`, you MUST extract and paste the EXACT sentences/paragraphs from the Markdown. Do not summarize them.\n\n### TARGET JSON SCHEMA\nYou must strictly follow this exact JSON structure. Fill in the string values and arrays using the data from the Markdown:\n\n{\n  \"project_name\": \"Project name or 'DDD Architecture'\",\n  \"strategic_analysis\": {\n    \"section_description\": \"Exact sentences from Markdown introducing the strategic analysis\",\n    \"core_domain\": \"Description of the Core Domain\",\n    \"generic_subdomains\": [\"List of generic subdomains\"],\n    \"supporting_subdomains\": [\"List of supporting subdomains\"]\n  },\n  \"boundaries_and_language\": {\n    \"section_description\": \"Exact sentences from Markdown explaining the overall boundary choices\",\n    \"bounded_contexts\": [\n      {\n        \"context_name\": \"Context name\",\n        \"description\": \"Exact sentences from Markdown describing the purpose of this specific context\",\n        \"aggregate_roots\": [\n          {\n            \"name\": \"Aggregate name\",\n            \"entities\": [\n              {\n                \"name\": \"Entity name\",\n                \"attributes\": [\"Attribute 1\", \"Attribute 2\"]\n              }\n            ],\n            \"transactional_boundary_details\": \"Details on data consistency and transactional boundaries\"\n          }\n        ]\n      }\n    ],\n    \"ubiquitous_language\": [\n      {\n        \"term\": \"Term\",\n        \"definition\": \"Definition\"\n      }\n    ]\n  },\n  \"eda_integration\": {\n    \"section_description\": \"Exact sentences from Markdown explaining the overall event-driven strategy\",\n    \"actors_and_commands\": [\n      {\n        \"actor\": \"Actor name (e.g., User, External System)\",\n        \"commands\": [\"Command 1\", \"Command 2\"]\n      }\n    ],\n    \"domain_events\": [\n      {\n        \"event_name\": \"PascalCaseEventName\",\n        \"produced_by_aggregate\": \"Aggregate name\",\n        \"produced_in_context\": \"Context name\",\n        \"trigger_condition\": \"Condition that triggers the event\",\n        \"consumed_by\": [\"Context/Service 1\", \"Context/Service 2\"]\n      }\n    ],\n    \"pub_sub_model\": \"Details on channels and message handling\",\n    \"context_mapping\": [\n      {\n        \"relationship_type\": \"Partnership / Customer-Supplier / ACL\",\n        \"involved_contexts\": \"Who communicates with whom and how\"\n      }\n    ]\n  },\n  \"tactical_patterns\": {\n    \"section_description\": \"Exact sentences from Markdown explaining the overall tactical choices\",\n    \"coordination_style\": \"Choreography or Orchestration with rationale\",\n    \"failure_handling_sagas\": \"Details on how the system handles the sad path and compensation mechanisms\",\n    \"event_sourcing\": \"Required or not, and why\",\n    \"cqrs\": \"Required or not, and why\",\n    \"read_models\": [\"List of critical dashboards, reports, or complex views\"],\n    \"consistency_model\": \"Strong Consistency vs Eventual Consistency\"\n  },\n  \"technical_excellence\": {\n    \"section_description\": \"Exact sentences from Markdown explaining the infrastructure approach\",\n    \"cloud_scalability\": \"Scalability strategies for Bounded Contexts\",\n    \"anticorruption_layer\": \"Details on integration with legacy systems\",\n    \"monitoring_security\": \"Requirements for OpenTelemetry, logging, and security\"\n  }\n}"
+          "systemMessage": "### ROLE\nYou are a strict Data Parser. Your ONLY job is to take an Architectural Design Document in Markdown and translate it 1:1 into a predefined JSON structure.\nYou must NOT add new information, NOT summarize, and NOT omit any technical detail present in the input.\n\n### INPUT\nA Markdown document generated by a DDD Analyst containing 5 technical pillars.\n\n### OUTPUT RULES (CRITICAL)\n1. **VALID JSON ONLY:** You must output ONLY valid JSON. The output MUST start with `{` and end with `}`.\n2. **NO FORMATTING:** DO NOT wrap the JSON in markdown code blocks (e.g., do NOT use ```json ... ```). DO NOT add any introductory or concluding text.\n3. **LANGUAGE:** While this schema and instructions are in English, the **ACTUAL VALUES** you extract and populate inside the JSON strings and arrays MUST BE IN **ITALIAN** (except for technical names like PascalCaseEventNames or standard English IT terms).\n4. **EXACT EXTRACTION FOR DESCRIPTIONS:** For all keys named `section_description` or `description`, you MUST extract and paste the EXACT sentences/paragraphs from the Markdown. Do not summarize them.\n\n### TARGET JSON SCHEMA\nYou must strictly follow this exact JSON structure. Fill in the string values and arrays using the data from the Markdown:\n\n{\n  \"project_name\": \"Project name or 'DDD Architecture'\",\n  \"strategic_analysis\": {\n    \"section_description\": \"Exact sentences from Markdown introducing the strategic analysis\",\n    \"core_domain\": \"Description of the Core Domain\",\n    \"generic_subdomains\": [\"List of generic subdomains\"],\n    \"supporting_subdomains\": [\"List of supporting subdomains\"]\n  },\n  \"boundaries_and_language\": {\n    \"section_description\": \"Exact sentences from Markdown explaining the overall boundary choices\",\n    \"bounded_contexts\": [\n      {\n        \"context_name\": \"Context name\",\n        \"description\": \"Exact sentences from Markdown describing the purpose of this specific context\",\n        \"aggregate_roots\": [\n          {\n            \"name\": \"Aggregate name\",\n            \"entities\": [\n              {\n                \"name\": \"Entity name\",\n                \"attributes\": [\"Attribute 1\", \"Attribute 2\"]\n              }\n            ],\n            \"transactional_boundary_details\": \"Details on data consistency and transactional boundaries\"\n          }\n        ]\n      }\n    ],\n    \"ubiquitous_language\": [\n      {\n        \"term\": \"Term\",\n        \"definition\": \"Definition\"\n      }\n    ]\n  },\n  \"eda_integration\": {\n    \"section_description\": \"Exact sentences from Markdown explaining the overall event-driven strategy and the sync/async distinction\",\n    \"commands_synchronous\": [\n      {\n        \"actor\": \"Actor name (e.g., User, External System, Timer)\",\n        \"command\": \"Command name (synchronous intention)\",\n        \"target_service\": \"Service that receives and processes the command\",\n        \"nature\": \"Synchronous - caller waits for response\"\n      }\n    ],\n    \"domain_events_asynchronous\": [\n      {\n        \"event_name\": \"PascalCaseEventName\",\n        \"nature\": \"Asynchronous - producer does not wait\",\n        \"produced_by_aggregate\": \"Aggregate name\",\n        \"produced_in_context\": \"Context name\",\n        \"trigger_condition\": \"Condition that triggers the event\",\n        \"consumed_by\": [\"Context/Service 1\", \"Context/Service 2\"]\n      }\n    ],\n    \"event_flow_architecture\": [\n      {\n        \"producer\": \"Who produces the event\",\n        \"channel\": \"Distribution mechanism (message broker, queue, API call)\",\n        \"consumers\": [\"Who consumes the event\"],\n        \"acknowledgement\": \"Required or not\"\n      }\n    ],\n    \"context_mapping\": [\n      {\n        \"relationship_type\": \"Partnership / Customer-Supplier / Shared Kernel / Conformist / ACL / Open Host Service\",\n        \"involved_contexts\": \"Who communicates with whom and how\"\n      }\n    ]\n  },\n  \"tactical_patterns\": {\n    \"section_description\": \"Exact sentences from Markdown explaining the overall tactical choices\",\n    \"coordination_style\": \"Choreography or Orchestration with rationale\",\n    \"failure_handling_sagas\": \"Details on how the system handles the sad path and compensation mechanisms\",\n    \"event_sourcing\": \"Required or not, and why\",\n    \"cqrs\": \"Required or not, and why\",\n    \"read_models\": [\"List of critical dashboards, reports, or complex views\"],\n    \"consistency_model\": \"Strong Consistency vs Eventual Consistency\"\n  },\n  \"technical_excellence\": {\n    \"section_description\": \"Exact sentences from Markdown explaining the infrastructure approach\",\n    \"cloud_scalability\": \"Scalability strategies for Bounded Contexts\",\n    \"anticorruption_layer\": \"Details on integration with legacy systems\",\n    \"monitoring_security\": \"Requirements for OpenTelemetry, logging, and security\"\n  }\n}"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1248,
-        -544
+        -1104,
+        -128
       ],
-      "id": "f66d39a0-64b2-4425-ad4e-12fd3ac602f1",
+      "id": "5fa8111b-6267-4b99-aff6-b7e21794bb90",
       "name": "JSON coder"
     },
     {
@@ -58,10 +58,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1584,
-        -544
+        -768,
+        -128
       ],
-      "id": "6c511e5c-c1d1-4218-b985-99d3172ba2e9",
+      "id": "46ccad56-ebb6-4ea5-ba5e-955be90bac03",
       "name": "Edit Fields"
     },
     {
@@ -73,10 +73,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
       "typeVersion": 1.5,
       "position": [
-        1008,
-        -400
+        -1344,
+        16
       ],
-      "id": "40a7d61e-471c-4f7a-94ae-8fe0aff3c8c2",
+      "id": "9b70da1a-8d17-45d7-a4a8-c2ff73fd0a50",
       "name": "Redis Chat Memory1",
       "credentials": {
         "redis": {
@@ -96,61 +96,15 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        1776,
-        -544
+        -576,
+        -128
       ],
-      "id": "25867ec9-9539-4e79-ad8c-b6fff4e6a148",
+      "id": "803381a7-73e6-4b29-b362-81aef0befa18",
       "name": "Redis",
       "credentials": {
         "redis": {
           "id": "G3AmE16QK8P1M12m",
           "name": "Redis account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "model": "qwen2.5:14b",
-        "options": {
-          "temperature": 0.3,
-          "numCtx": 8192
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "typeVersion": 1,
-      "position": [
-        800,
-        -400
-      ],
-      "id": "086df2bb-597b-4f62-925d-4d05adeff900",
-      "name": "Ollama Chat Model1",
-      "credentials": {
-        "ollamaApi": {
-          "id": "XRt6dclbmLUcFpVw",
-          "name": "Ollama account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "model": "qwen2.5:14b",
-        "options": {
-          "temperature": 0,
-          "numCtx": 8192
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "typeVersion": 1,
-      "position": [
-        1248,
-        -400
-      ],
-      "id": "69b8f63c-284c-4cef-9d26-e3919876bf1a",
-      "name": "Ollama Chat Model2",
-      "credentials": {
-        "ollamaApi": {
-          "id": "XRt6dclbmLUcFpVw",
-          "name": "Ollama account"
         }
       }
     },
@@ -164,10 +118,10 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        -368,
-        -48
+        -2720,
+        368
       ],
-      "id": "8bb5d8c1-ed9a-4608-b364-0de583689f0b",
+      "id": "cd7630ff-42e9-4bf2-809d-090a37b9203c",
       "name": "Redis1",
       "credentials": {
         "redis": {
@@ -302,126 +256,11 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        912,
-        160
+        -1440,
+        576
       ],
-      "id": "b0b21f2a-bdbb-4e00-ab20-5774b8dc1650",
+      "id": "339c59b9-706c-4bb6-9bae-7996fe434efe",
       "name": "Switch1"
-    },
-    {
-      "parameters": {
-        "model": "llama3:latest",
-        "options": {
-          "temperature": 0.4,
-          "numCtx": 8192
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "typeVersion": 1,
-      "position": [
-        1216,
-        -144
-      ],
-      "id": "1c13ff82-5aec-430d-a14d-f0e5fa66c41a",
-      "name": "Ollama Chat Model3",
-      "credentials": {
-        "ollamaApi": {
-          "id": "XRt6dclbmLUcFpVw",
-          "name": "Ollama account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "model": "llama3:latest",
-        "options": {
-          "temperature": 0.4,
-          "numCtx": 8192
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "typeVersion": 1,
-      "position": [
-        1216,
-        80
-      ],
-      "id": "4b327c1e-95d6-4920-9c40-829b0d0060f5",
-      "name": "Ollama Chat Model4",
-      "credentials": {
-        "ollamaApi": {
-          "id": "XRt6dclbmLUcFpVw",
-          "name": "Ollama account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "model": "llama3:latest",
-        "options": {
-          "temperature": 0.4,
-          "numCtx": 8192
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "typeVersion": 1,
-      "position": [
-        1216,
-        320
-      ],
-      "id": "bf2432a7-5671-46c6-9926-a4dd23903f41",
-      "name": "Ollama Chat Model5",
-      "credentials": {
-        "ollamaApi": {
-          "id": "XRt6dclbmLUcFpVw",
-          "name": "Ollama account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "model": "llama3:latest",
-        "options": {
-          "temperature": 0.4,
-          "numCtx": 8192
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "typeVersion": 1,
-      "position": [
-        1216,
-        560
-      ],
-      "id": "e2a69a89-49ad-47cf-8a66-8f3af492d328",
-      "name": "Ollama Chat Model6",
-      "credentials": {
-        "ollamaApi": {
-          "id": "XRt6dclbmLUcFpVw",
-          "name": "Ollama account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "model": "llama3:latest",
-        "options": {
-          "temperature": 0.4,
-          "numCtx": 8192
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "typeVersion": 1,
-      "position": [
-        1216,
-        800
-      ],
-      "id": "9018e9a1-4bab-4187-b930-b0fb046ee809",
-      "name": "Ollama Chat Model7",
-      "credentials": {
-        "ollamaApi": {
-          "id": "XRt6dclbmLUcFpVw",
-          "name": "Ollama account"
-        }
-      }
     },
     {
       "parameters": {
@@ -432,10 +271,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
       "typeVersion": 1.5,
       "position": [
-        1392,
-        -144
+        -960,
+        272
       ],
-      "id": "118da68a-f6a1-4fd1-a19f-7ffc5c32c4f5",
+      "id": "2cd1dab5-a7b5-49fe-967f-9b43eefafd23",
       "name": "Redis Chat Memory2",
       "credentials": {
         "redis": {
@@ -453,10 +292,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
       "typeVersion": 1.5,
       "position": [
-        1392,
-        80
+        -960,
+        496
       ],
-      "id": "36d4a999-a71f-4570-81b0-0e279ae0e070",
+      "id": "0f39c759-1790-415d-8c8c-b12fe5c14bc4",
       "name": "Redis Chat Memory3",
       "credentials": {
         "redis": {
@@ -474,10 +313,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
       "typeVersion": 1.5,
       "position": [
-        1392,
-        320
+        -960,
+        736
       ],
-      "id": "077ac4c5-80e8-4e44-985b-8967de0b312d",
+      "id": "dd9be3b9-4244-4abd-81b9-64de615d879a",
       "name": "Redis Chat Memory4",
       "credentials": {
         "redis": {
@@ -495,10 +334,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
       "typeVersion": 1.5,
       "position": [
-        1392,
-        560
+        -960,
+        976
       ],
-      "id": "99e8fe5c-d8e2-4b10-98c2-b5ad487b78a3",
+      "id": "ebedce76-1030-4327-976d-011394c2d8c2",
       "name": "Redis Chat Memory5",
       "credentials": {
         "redis": {
@@ -516,10 +355,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
       "typeVersion": 1.5,
       "position": [
-        1392,
-        800
+        -960,
+        1216
       ],
-      "id": "05f25669-9068-441a-80e6-4ef3c6149fa4",
+      "id": "9899b65d-9b53-4ec4-aeb6-0a18ab6cb950",
       "name": "Redis Chat Memory6",
       "credentials": {
         "redis": {
@@ -539,10 +378,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1136,
-        -256
+        -1216,
+        160
       ],
-      "id": "87dd94fb-4aa8-4466-a1f0-27883fb8c5df",
+      "id": "3811b6fa-a409-45cd-a6a1-0127602239e6",
       "name": "DOMAIN INTERVIEWER"
     },
     {
@@ -550,16 +389,16 @@
         "promptType": "define",
         "text": "==LATEST USER INPUT:\n\"{{ $('Webhook_Internal').item.json.body.message }}\"",
         "options": {
-          "systemMessage": "### 1. ROLE & PERSONA\nYou are the **Senior Event-Driven Architect**, an expert in system dynamics. Your ONLY mission is to lead \"Phase 3: EDA Integration\". You identify triggers (Actors), intentions (Commands), and the resulting facts (Domain Events) that propagate through the system.\n\n### 2. OUTPUT RULES\n- **LANGUAGE:** Respond EXCLUSIVELY in **ITALIAN**.\n- **DIRECT DIALOGUE:** Speak directly to the client. \n- **NO JARGON:** Translate technical EDA terms into business concepts (\"azioni\", \"fatti accaduti\", \"reazioni automatiche\").\n- **STYLE:** Professional, direct, no fluff.\n- **FIRST MESSAGE RULE:** Since you are stepping in after Phase 2, begin your very first response by briefly acknowledging the transition to system actions and events, then ask your first question.\n\n### 3. ANTI-BLEEDING & BEHAVIORAL BOUNDARIES (CRITICAL)\n- **STAY IN YOUR LANE:** You are Phase 3 ONLY. You are STRICTLY FORBIDDEN from asking about: what happens if the system crashes (Sagas), cloud servers, specific data fields (already done), or security.\n- **ONE QUESTION:** Never ask multiple questions at once.\n- **NEVER END THE PHASE:** Do not attempt to close the interview or say the phase is over. Just keep asking relevant questions until the system automatically stops you.\n\n### 4. THE DISCOVERY FLOW: PHASE 3\n- **Goal**: Identify Actors, Commands, Domain Events, and define the **Context Mapping** (strategic relationships between silos).\n- **Focus & Mandatory Actions**:\n    1. **Triggers & Facts**: Identify the Actors, the Commands (intentions), and the resulting Domain Events. You MUST propose or confirm Event names in PascalCase (e.g., \"OrdineCreato\").\n    2. **Strategic Relationships (Context Mapping)**: You MUST clarify how different Bounded Contexts interact. Ask questions to understand if they are in a \"Partnership\" (shared goal), \"Customer-Supplier\" (one depends on the other), or if we need an \"Anticorruption Layer\" to protect our model from external/legacy systems.\n    3. **Event Propagation**: Investigate what happens in Context B when an event occurs in Context A. Who is consuming that specific fact?"
+          "systemMessage": "### 1. ROLE & PERSONA\nYou are the **Senior Event-Driven Architect**, an expert in system dynamics and communication paradigms. Your ONLY mission is to lead \"Phase 3: EDA Integration\". You model how parts of the system communicate — distinguishing between synchronous interactions (Commands) and asynchronous reactions (Domain Events) — and you define the strategic relationships between Bounded Contexts (Context Mapping).\n\n### 2. OUTPUT RULES\n- **LANGUAGE:** Respond EXCLUSIVELY in **ITALIAN**.\n- **DIRECT DIALOGUE:** Speak directly to the client. \n- **NO JARGON:** Translate technical EDA terms into business concepts (\"richieste dirette\", \"fatti accaduti\", \"reazioni automatiche\", \"canali di comunicazione\").\n- **STYLE:** Professional, direct, no fluff.\n- **FIRST MESSAGE RULE:** Since you are stepping in after Phase 2, begin your very first response by briefly acknowledging the transition to system actions and events, then ask your first question.\n\n### 3. ANTI-BLEEDING & BEHAVIORAL BOUNDARIES (CRITICAL)\n- **STAY IN YOUR LANE:** You are Phase 3 ONLY. You are STRICTLY FORBIDDEN from asking about: what happens if the system crashes (Sagas), cloud servers, specific data fields (already done), or security.\n- **ONE QUESTION:** Never ask multiple questions at once.\n- **NEVER END THE PHASE:** Do not attempt to close the interview or say the phase is over. Just keep asking relevant questions until the system automatically stops you.\n\n### 4. THE DISCOVERY FLOW: PHASE 3\n- **Goal**: Identify Actors, Commands, Domain Events, define the communication paradigm (synchronous vs asynchronous), and establish the **Context Mapping** (strategic relationships between Bounded Contexts).\n- **Focus & Mandatory Actions**:\n    1. **Actors & Commands (Synchronous Intentions)**: Identify WHO triggers actions in the system (Users, External Systems, Timers) and WHAT they explicitly request (Commands). A Command is a synchronous intention: the caller sends a request and WAITS for an immediate response. Commands create tight coupling between the caller and the called service.\n    2. **Domain Events (Asynchronous Facts)**: Identify the FACTS that result from processed Commands. A Domain Event signals that something HAS HAPPENED (past tense). Unlike Commands, Events are asynchronous: the Producer publishes the event and DOES NOT WAIT — it has no knowledge of who will consume the event. You MUST propose or confirm Event names in PascalCase (e.g., \"OrdineCreato\", \"PagamentoConfermato\"). Clearly distinguish: the Command is the intention (\"CreaOrdine\"), the Event is the resulting fact (\"OrdineCreato\").\n    3. **Event Flow Architecture (Producer → Channel → Consumer)**: For each Domain Event, investigate the flow: WHO produces the event, THROUGH WHAT channel it is distributed (message broker, queue, API call), and WHO consumes it. Ask: when this event occurs in Context A, which other Contexts need to react? Does the consumer need to acknowledge receipt?\n    4. **Strategic Relationships (Context Mapping)**: You MUST clarify how different Bounded Contexts interact. Ask questions to determine the nature of each relationship:\n        - **Partnership**: Teams collaborate closely and share goals.\n        - **Customer-Supplier**: One context depends on another (upstream-downstream).\n        - **Shared Kernel**: Contexts share a subset of the model (high coupling risk).\n        - **Conformist**: One context passively adapts to another's model.\n        - **Anticorruption Layer (ACL)**: A translation layer that protects the new model from legacy or external systems.\n        - **Open Host Service / Published Language**: Standard APIs or documented protocols for integration."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1136,
-        208
+        -1216,
+        624
       ],
-      "id": "13927dc7-f24d-4595-929f-1b2fec32d407",
+      "id": "5fb1644b-8b8f-4aee-adbe-3719a50a9b67",
       "name": "EVENT INTERVIEWER"
     },
     {
@@ -573,10 +412,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1136,
-        448
+        -1216,
+        864
       ],
-      "id": "b0dae008-fed4-4c3c-9fc6-418779490125",
+      "id": "6cb8ff55-ba57-447b-8401-f83aa9004d59",
       "name": "PATTERN INTERVIEWER"
     },
     {
@@ -590,10 +429,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1136,
-        688
+        -1216,
+        1104
       ],
-      "id": "8724b6d5-9303-4c02-a746-f4ef3e124612",
+      "id": "9b865e6a-f918-4f36-a6df-975a82d86341",
       "name": "RESILIENCE INTERVIEWER"
     },
     {
@@ -607,10 +446,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1136,
-        -32
+        -1216,
+        384
       ],
-      "id": "c6fad631-0a80-4d15-b826-7e7ddd3e5e35",
+      "id": "6b7e81f7-aa83-4c5d-aabc-7fe2ffdb5934",
       "name": "CONTEXT INTERVIEWER"
     },
     {
@@ -622,10 +461,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        672,
-        -544
+        -1680,
+        -128
       ],
-      "id": "58896f2c-0841-482d-a22a-f8d2dafc6029",
+      "id": "ccf2af24-af38-48be-8bfe-80a58974b1eb",
       "name": "Respond to Webhook"
     },
     {
@@ -637,10 +476,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        1808,
-        208
+        -544,
+        624
       ],
-      "id": "4bc7bad4-66b9-42f9-8a09-171f0316d269",
+      "id": "8cbc8ee7-4c8e-40db-961d-a890ec7bb881",
       "name": "Respond to Webhook1"
     },
     {
@@ -653,10 +492,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -528,
-        -48
+        -2880,
+        368
       ],
-      "id": "8301682d-bc08-4416-845b-b717035ffa76",
+      "id": "d22547e9-f95b-49ae-b6ab-b869cfbcd4c5",
       "name": "Webhook_Internal",
       "webhookId": "f3f12649-5840-4765-92dd-f8e4357f0a0f"
     },
@@ -715,10 +554,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        272,
-        -48
+        -2080,
+        368
       ],
-      "id": "268920bb-96a0-4d9d-a8db-0e4e3968c71c",
+      "id": "1b46ab37-585f-4efd-9c5d-0da4b268af10",
       "name": "Switch"
     },
     {
@@ -738,10 +577,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        592,
-        -80
+        -1760,
+        336
       ],
-      "id": "f2c8647d-efdf-4b5e-80af-f39c2349269b",
+      "id": "e37bd528-c3d2-40b0-b055-fe4b42ab1010",
       "name": "Edit Fields1"
     },
     {
@@ -772,10 +611,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        432,
-        -288
+        -1920,
+        128
       ],
-      "id": "09f1c136-6197-4362-bc72-cc9a87141f14",
+      "id": "d1159335-93ad-45e5-b8e9-dd2fe4afe4ea",
       "name": "If"
     },
     {
@@ -787,10 +626,10 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        736,
-        -80
+        -1616,
+        336
       ],
-      "id": "6921fcdc-9ded-4ca4-8d54-cae87a337c87",
+      "id": "11a32c09-e3ae-44d1-bcde-5a885aa0f699",
       "name": "Redis2",
       "credentials": {
         "redis": {
@@ -804,17 +643,39 @@
         "promptType": "define",
         "text": "=== STORICO DELLA CONVERSAZIONE (JSON) ==\n{{ $('Redis Get chat').item.json.storico_chat }}\n\n== STATO ATTUALE ==\nCURRENT_PHASE: {{ $('Redis1').item.json.phase }}\nLATEST_USER_RESPONSE: \"{{ $('Webhook_Internal').item.json.body.message }}\"\n\nINSTRUCTION: \nReview the full chat history in your memory against the checklist for Phase {{ $('Redis1').item.json.phase }}. \nDoes the conversation provide enough technical detail to satisfy the requirements for this phase? \n\nOutput ONLY \"PASS\" or \"WAIT\".",
         "options": {
-          "systemMessage": "### ROLE\nYou are the **Senior Project Controller and Architectural Auditor**. Your sole purpose is to monitor a discovery interview and determine if the information gathered is sufficient to move to the next architectural phase.\n\n### OBJECTIVE\nAnalyze the chat history and the current phase requirements. You must ensure that the level of detail is high enough for a Senior Architect to write a full technical specification. \n\n### OUTPUT RULES\n- Respond EXCLUSIVELY with the word **PASS** or **WAIT**.\n- NO explanations, NO greetings, NO chat.\n- **WAIT**: Information is missing, vague, lacks technical depth, or is still under discussion. When in doubt, default to WAIT.\n- **PASS**: EVERY SINGLE requirement for the current phase is explicitly answered, defined, and confirmed by the user.\n\n### VALIDATION CHECKLIST (PER PHASE)\n\n#### PHASE 1: Strategic Analysis\n- **Core Domain**: Clearly identified (the unique business value that provides competitive advantage).\n- **Generic Subdomains**: Standard processes identified (e.g., payments, maps, authentication) that can be solved with off-the-shelf solutions.\n- **Supporting Subdomains**: Related areas identified that require customization but do not constitute the core business (e.g., ratings/reviews, notification history).\n- **Detail Level**: The conversation must explicitly distinguish between what is custom-built (Core), what is standard (Generic), and what is complementary (Supporting).\n\n#### PHASE 2: Boundaries and Language\n- **Bounded Contexts**: Logical silos clearly defined within the solution space.\n- **Entities & Roots**: Main data objects (Aggregate Roots) identified for each context.\n- **Attributes**: Every main entity MUST have at least 2-3 specific attributes (e.g., status, id, amount) mentioned or confirmed.\n- **Ubiquitous Language**: Key business terms and their specific meanings established to ensure a shared glossary between stakeholders and developers.\n- **Detail Level**: Information must be sufficient to define both a database schema and a consistent domain vocabulary.\n\n#### PHASE 3: EDA Integration\n- **Actors & Commands**: Identify who triggers actions (Users, Systems, Timers) and their explicit intent (Commands).\n- **Domain Events**: Resulting facts identified and named in PascalCase (e.g., \"OrderPlaced\").\n- **Context Mapping**: Explicitly define how different Bounded Contexts interact and their strategic relationship (e.g., Partnership, Customer-Supplier, Anticorruption Layer).\n- **Detail Level**: Information must be sufficient to map both the internal message broker flow and the high-level integration between silos.\n\n#### PHASE 4: Tactical Patterns\n- **Coordination**: Clear choice and rationale between Choreography and Orchestration.\n- **Failure Handling**: Definition of the \"Sad Path\" and specific compensation mechanisms (Saga Pattern).\n- **Event Sourcing**: Explicit decision on whether to store the full history of state changes or only the current state.\n- **CQRS**: Explicit decision on separating command (Write) and query (Read) models for performance or scalability.\n- **Read Models**: Identification of specific dashboards, reports, or views required by the business.\n- **Consistency**: Definition of where Strong Consistency is required vs. where Eventual Consistency is acceptable.\n\n#### PHASE 5: Resilience & Excellence\n- **Cloud & Scalability**: Define high-level infrastructure strategy and independent scalability needs for Bounded Contexts.\n- **Monitoring & Tracing**: Explicit requirements for distributed tracing (e.g., OpenTelemetry), centralized logging, and overall system observability.\n- **Legacy & ACL**: Identification of legacy systems and the technical strategy for the Anticorruption Layer (ACL).\n- **Security**: Basic security, compliance, or data protection constraints.\n- **Detail Level**: Information must be sufficient to define the final deployment environment and operational resilience.\n\n### BEHAVIORAL PROTOCOL & STRICT ENFORCEMENT (CRITICAL)\n- **ANTI-KEYWORD MATCHING (CRITICAL)**: Do NOT issue a PASS just because the user mentions a relevant keyword (e.g., \"payments\", \"database\", \"events\"). You must verify that a concrete architectural decision has been made about that keyword.\n- **QUESTIONS = WAIT**: If the user asks a question, asks for advice, or leaves an architecture decision open (e.g., \"What do you suggest?\", \"We also need to think about payments\"), the phase is NOT complete. You MUST output **WAIT**.\n- **ZERO TOLERANCE**: You MUST issue a **WAIT** if even a single bullet point in the current Phase checklist is missing, vague, or unconfirmed. All bullet points are mandatory.\n- **USER CONFIRMATION**: If the interviewer proposes a solution and the user is evasive, generic, or says \"you decide,\" you MUST issue a **WAIT** until the user gives explicit consent and definition.\n- **PASS CRITERIA**: Issue a **PASS** ONLY when all requirements for the current phase are documented with finality and high technical depth."
+          "systemMessage": "### ROLE\nYou are the **Senior Project Controller and Architectural Auditor**. Your sole purpose is to monitor a discovery interview and determine if the information gathered is sufficient to move to the next architectural phase.\n\n### OBJECTIVE\nAnalyze the chat history and the current phase requirements. You must ensure that the level of detail is high enough for a Senior Architect to write a full technical specification. \n\n### OUTPUT RULES\n- Respond EXCLUSIVELY with the word **PASS** or **WAIT**.\n- NO explanations, NO greetings, NO chat.\n- **WAIT**: Information is missing, vague, lacks technical depth, or is still under discussion. When in doubt, default to WAIT.\n- **PASS**: EVERY SINGLE requirement for the current phase is explicitly answered, defined, and confirmed by the user.\n\n### VALIDATION CHECKLIST (PER PHASE)\n\n#### PHASE 1: Strategic Analysis\n- **Core Domain**: Clearly identified (the unique business value that provides competitive advantage).\n- **Generic Subdomains**: Standard processes identified (e.g., payments, maps, authentication) that can be solved with off-the-shelf solutions.\n- **Supporting Subdomains**: Related areas identified that require customization but do not constitute the core business (e.g., ratings/reviews, notification history).\n- **Detail Level**: The conversation must explicitly distinguish between what is custom-built (Core), what is standard (Generic), and what is complementary (Supporting).\n\n#### PHASE 2: Boundaries and Language\n- **Bounded Contexts**: Logical silos clearly defined within the solution space.\n- **Entities & Roots**: Main data objects (Aggregate Roots) identified for each context.\n- **Attributes**: Every main entity MUST have at least 2-3 specific attributes (e.g., status, id, amount) mentioned or confirmed.\n- **Ubiquitous Language**: Key business terms and their specific meanings established to ensure a shared glossary between stakeholders and developers.\n- **Detail Level**: Information must be sufficient to define both a database schema and a consistent domain vocabulary.\n\n#### PHASE 3: EDA Integration\n- **Actors & Commands (Synchronous)**: Identify who triggers actions (Users, Systems, Timers) and their explicit synchronous intent (Commands — the caller waits for a response).\n- **Domain Events (Asynchronous)**: Resulting asynchronous facts identified and named in PascalCase (e.g., \"OrderPlaced\"). The distinction between Commands (sync) and Events (async) must be clear.\n- **Event Flow (Producer → Channel → Consumer)**: For key events, the producer, distribution channel, and consumers must be identified.\n- **Context Mapping**: Explicitly define how different Bounded Contexts interact and their strategic relationship (e.g., Partnership, Customer-Supplier, Shared Kernel, Conformist, Anticorruption Layer, Open Host Service).\n- **Detail Level**: Information must be sufficient to map both the internal message broker flow and the high-level integration between silos.\n\n#### PHASE 4: Tactical Patterns\n- **Coordination**: Clear choice and rationale between Choreography and Orchestration.\n- **Failure Handling**: Definition of the \"Sad Path\" and specific compensation mechanisms (Saga Pattern).\n- **Event Sourcing**: Explicit decision on whether to store the full history of state changes or only the current state.\n- **CQRS**: Explicit decision on separating command (Write) and query (Read) models for performance or scalability.\n- **Read Models**: Identification of specific dashboards, reports, or views required by the business.\n- **Consistency**: Definition of where Strong Consistency is required vs. where Eventual Consistency is acceptable.\n\n#### PHASE 5: Resilience & Excellence\n- **Cloud & Scalability**: Define high-level infrastructure strategy and independent scalability needs for Bounded Contexts.\n- **Monitoring & Tracing**: Explicit requirements for distributed tracing (e.g., OpenTelemetry), centralized logging, and overall system observability.\n- **Legacy & ACL**: Identification of legacy systems and the technical strategy for the Anticorruption Layer (ACL).\n- **Security**: Basic security, compliance, or data protection constraints.\n- **Detail Level**: Information must be sufficient to define the final deployment environment and operational resilience.\n\n### BEHAVIORAL PROTOCOL & STRICT ENFORCEMENT (CRITICAL)\n- **ANTI-KEYWORD MATCHING (CRITICAL)**: Do NOT issue a PASS just because the user mentions a relevant keyword (e.g., \"payments\", \"database\", \"events\"). You must verify that a concrete architectural decision has been made about that keyword.\n- **QUESTIONS = WAIT**: If the user asks a question, asks for advice, or leaves an architecture decision open (e.g., \"What do you suggest?\", \"We also need to think about payments\"), the phase is NOT complete. You MUST output **WAIT**.\n- **ZERO TOLERANCE**: You MUST issue a **WAIT** if even a single bullet point in the current Phase checklist is missing, vague, or unconfirmed. All bullet points are mandatory.\n- **USER CONFIRMATION**: If the interviewer proposes a solution and the user is evasive, generic, or says \"you decide,\" you MUST issue a **WAIT** until the user gives explicit consent and definition.\n- **PASS CRITERIA**: Issue a **PASS** ONLY when all requirements for the current phase are documented with finality and high technical depth."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        0,
-        -48
+        -2352,
+        368
       ],
-      "id": "47f9635c-f064-43c1-8919-bb1af62eb175",
+      "id": "63d5f036-f5d2-4428-a4cd-e021567c5965",
       "name": "ORCHESTRATOR"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "storico_chat",
+        "key": "=chat_history:{{ $('Webhook_Internal').item.json.body.sessionId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -2544,
+        368
+      ],
+      "id": "14b3f35f-e9b3-4a17-87d1-44fd94f1240c",
+      "name": "Redis Get chat",
+      "credentials": {
+        "redis": {
+          "id": "G3AmE16QK8P1M12m",
+          "name": "Redis account"
+        }
+      }
     },
     {
       "parameters": {
@@ -827,10 +688,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        0,
-        144
+        -2476.307016129033,
+        576
       ],
-      "id": "5c4005c0-519c-4c93-a34a-a14a89c59d04",
+      "id": "86461fe6-571d-4efb-83e8-b34e5494d426",
       "name": "Ollama Chat Model",
       "credentials": {
         "ollamaApi": {
@@ -841,23 +702,162 @@
     },
     {
       "parameters": {
-        "operation": "get",
-        "propertyName": "storico_chat",
-        "key": "=chat_history:{{ $('Webhook_Internal').item.json.body.sessionId }}",
-        "options": {}
+        "model": "qwen2.5:14b",
+        "options": {
+          "temperature": 0.3,
+          "numCtx": 8192
+        }
       },
-      "type": "n8n-nodes-base.redis",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        -192,
-        -48
+        -1488,
+        64
       ],
-      "id": "3fbcd335-8b38-4208-96e6-2ea9ddf8ca90",
-      "name": "Redis Get chat",
+      "id": "36290ef5-f26f-4e6b-accc-3ae25a7da7f6",
+      "name": "Ollama Chat Model1",
       "credentials": {
-        "redis": {
-          "id": "G3AmE16QK8P1M12m",
-          "name": "Redis account"
+        "ollamaApi": {
+          "id": "XRt6dclbmLUcFpVw",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:14b",
+        "options": {
+          "temperature": 0,
+          "numCtx": 8192
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        48
+      ],
+      "id": "2cdae547-24e9-45f2-8b51-22c6c55b1a0d",
+      "name": "Ollama Chat Model2",
+      "credentials": {
+        "ollamaApi": {
+          "id": "XRt6dclbmLUcFpVw",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3:latest",
+        "options": {
+          "temperature": 0.4,
+          "numCtx": 8192
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1152,
+        288
+      ],
+      "id": "663d791e-d5b3-4581-b6c0-b6a0281676a6",
+      "name": "Ollama Chat Model3",
+      "credentials": {
+        "ollamaApi": {
+          "id": "XRt6dclbmLUcFpVw",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3:latest",
+        "options": {
+          "temperature": 0.4,
+          "numCtx": 8192
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1216,
+        528
+      ],
+      "id": "57f94846-8285-478a-8c0b-c11c81c88c5c",
+      "name": "Ollama Chat Model4",
+      "credentials": {
+        "ollamaApi": {
+          "id": "XRt6dclbmLUcFpVw",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3:latest",
+        "options": {
+          "temperature": 0.4,
+          "numCtx": 8192
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1216,
+        768
+      ],
+      "id": "5e795817-a610-4176-87be-98d46fd578ea",
+      "name": "Ollama Chat Model5",
+      "credentials": {
+        "ollamaApi": {
+          "id": "XRt6dclbmLUcFpVw",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3:latest",
+        "options": {
+          "temperature": 0.4,
+          "numCtx": 8192
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1216,
+        1008
+      ],
+      "id": "88ee200f-ba5f-4f88-9c6e-e28c9bda4b89",
+      "name": "Ollama Chat Model6",
+      "credentials": {
+        "ollamaApi": {
+          "id": "XRt6dclbmLUcFpVw",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3:latest",
+        "options": {
+          "temperature": 0.4,
+          "numCtx": 8192
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1200,
+        1296
+      ],
+      "id": "772d95e2-fb54-43c6-9c64-5cc5fea15813",
+      "name": "Ollama Chat Model7",
+      "credentials": {
+        "ollamaApi": {
+          "id": "XRt6dclbmLUcFpVw",
+          "name": "Ollama account"
         }
       }
     }
@@ -908,33 +908,6 @@
         ]
       ]
     },
-    "Redis": {
-      "main": [
-        []
-      ]
-    },
-    "Ollama Chat Model1": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "DDD Analyst",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ollama Chat Model2": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "JSON coder",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Redis1": {
       "main": [
         [
@@ -980,61 +953,6 @@
           {
             "node": "RESILIENCE INTERVIEWER",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ollama Chat Model3": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "DOMAIN INTERVIEWER",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ollama Chat Model7": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "RESILIENCE INTERVIEWER",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ollama Chat Model6": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "PATTERN INTERVIEWER",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ollama Chat Model5": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "EVENT INTERVIEWER",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ollama Chat Model4": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "CONTEXT INTERVIEWER",
-            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -1241,6 +1159,17 @@
         ]
       ]
     },
+    "Redis Get chat": {
+      "main": [
+        [
+          {
+            "node": "ORCHESTRATOR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Ollama Chat Model": {
       "ai_languageModel": [
         [
@@ -1252,12 +1181,78 @@
         ]
       ]
     },
-    "Redis Get chat": {
-      "main": [
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
         [
           {
-            "node": "ORCHESTRATOR",
-            "type": "main",
+            "node": "DDD Analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "JSON coder",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "DOMAIN INTERVIEWER",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CONTEXT INTERVIEWER",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "EVENT INTERVIEWER",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "PATTERN INTERVIEWER",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RESILIENCE INTERVIEWER",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -1270,11 +1265,11 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "0de3a5d9-122a-4146-b606-76fe044f8c30",
+  "versionId": "b70bf2b4-3dc0-44dd-a1b4-9934b436520b",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "52a68bcd1f54fc16001268dd9a7486b5178c7ab47e17f96b422167fc3c8d9cc1"
   },
-  "id": "iJSUBldIHUfKM37y",
+  "id": "224j1giQiPGaufDI",
   "tags": []
 }

@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Agente DDD - Full Screen</title>
     <style>
-        /* --- STILE CSS ORIGINALE INTACT --- */
         body {
             font-family: sans-serif;
             background-color: #fff;
@@ -548,10 +547,8 @@
                 const label = document.createElement('div');
                 label.classList.add('ai-label');
                 label.innerText = isJson
-                    ? 'Architettura Consolidata'
-                    : (isMarkdown
-                        ? (isDraft ? 'Agente Modifier (Proposta Modifica)' : 'Documento Architetturale')
-                        : 'Agente DDD');
+                    ? (isDraft ? 'Agente Modifier (Bozza Modifica)' : 'Architettura Consolidata')
+                    : (isMarkdown ? 'Documento Architetturale' : 'Agente DDD');
                 contentDiv.appendChild(label);
             }
 
@@ -589,12 +586,6 @@
                 bubbleDiv.classList.add('bubble', 'ai-bubble', 'markdown-bubble');
                 bubbleDiv.innerHTML = marked.parse(text);
                 contentDiv.appendChild(bubbleDiv);
-
-                // AGGIUNTA FONDAMENTALE: Se è una bozza, aggiungiamo i bottoni sotto al Markdown!
-                if (isDraft) {
-                    const draftActionDiv = createDraftButtonsContainer();
-                    contentDiv.appendChild(draftActionDiv);
-                }
             } else {
                 bubbleDiv.classList.add('bubble');
                 bubbleDiv.classList.add(sender === 'user' ? 'user-bubble' : 'ai-bubble');
@@ -712,9 +703,9 @@
             bubbleDiv.classList.add('bubble', 'ai-bubble');
 
             if (actionType === 'conferma') {
-                bubbleDiv.innerText = "Sei sicuro che vuoi che questa sia la modifica che vuoi?";
+                bubbleDiv.innerText = "Sei sicuro che vuoi che questa proposta diventi l'architettura attuale?";
             } else {
-                bubbleDiv.innerText = "Mi dispiace non essere stato d'aiuto. Attenzione: se confermi il rifiuto, questa proposta di modifica andrà persa, e nel prossimo messaggio potrai provare a spiegarmi meglio la tua modifica. Sei sicuro di voler annullare tutto?";
+                bubbleDiv.innerText = "Mi dispiace non essere stato d'aiuto. Attenzione: se confermi il rifiuto, questa intera proposta andrà persa. Se c'è solo un piccolo errore, ti consiglio di cliccare 'No', accettare la proposta e chiedermi di fare una piccola modifica nel prossimo messaggio. Sei sicuro di voler annullare tutto?";
             }
 
             const btnRow = document.createElement('div');
@@ -750,6 +741,7 @@
         async function submitDraftDecision(actionType, promptElement) {
             promptElement.remove();
             showLoading();
+            // Assicuriamoci che l'input sia bloccato mentre processiamo la decisione
             toggleInput(false);
 
             try {
@@ -762,34 +754,15 @@
                     })
                 });
 
-                const data = await response.json(); // Leggiamo la risposta di n8n
                 hideLoading();
 
                 if (actionType === 'conferma') {
-                    if (data.status === 'failed') {
-                        appendMessage("Ops! I controlli di sicurezza interni hanno bloccato questa modifica...", 'ai', false);
-                    } else {
-                        // --- VISUALIZZAZIONE IDENTICA ALLA GENERAZIONE INIZIALE ---
-
-                        // 1. Mostriamo il messaggio di testo dell'agente (se presente)
-                        if (data.output) {
-                            let testoDisplay = typeof data.output === 'string'
-                                ? data.output.replace(/^[\s_]+|[\s_]+$/g, '')
-                                : JSON.stringify(data.output);
-                            appendMessage(testoDisplay, 'ai', false, false, true);
-                        }
-
-                        // 2. Mostriamo il blocco di codice JSON aggiornato
-                        if (data.architecture_json) {
-                            appendMessage(data.architecture_json, 'ai', true);
-                        }
-
-                        appendMessage("Ottimo! L'architettura è stata aggiornata con successo.", 'ai');
-                    }
+                    appendMessage("Ottimo! L'architettura è stata aggiornata.", 'ai');
                 } else {
                     appendMessage("Proposta scartata e cestinata. Torniamo all'architettura precedente.", 'ai');
                 }
 
+                // Dopo aver concluso la modifica, riproponiamo la scelta per il prossimo passo
                 promptModeSelection();
 
             } catch (e) {
@@ -829,27 +802,14 @@
             const msg = messageInput.value;
             if (!msg.trim()) return;
 
-            // Aggiungo prefisso visivo per l'utente
+            // Aggiungo prefisso visivo per l'utente, così si ricorda in che modalità si trova
             const prefix = currentMode === 'modify' ? "[Modifica]: " : (currentMode === 'explain' ? "[Spiegazione]: " : "");
             appendMessage(prefix + msg, 'user');
             messageInput.value = '';
 
-            // Blocco input
+            // Blocco immediato input mentre n8n lavora
             toggleInput(false);
-
-            // FEEDBACK VISIVO IMMEDIATO
-            if (currentMode === 'modify') {
-                // Se siamo in modifica, usiamo subito l'animazione arancione
-                const animRow = document.createElement('div');
-                animRow.classList.add('message-row', 'ai-row');
-                animRow.id = 'status-anim-container';
-                animRow.innerHTML = `<div class="anim-refining">Analizzando la richiesta di modifica...</div>`;
-                chatHistory.appendChild(animRow);
-                chatHistory.scrollTop = chatHistory.scrollHeight;
-            } else {
-                // Per Discovery ed Explain usiamo i classici puntini blu
-                showLoading();
-            }
+            showLoading();
 
             try {
                 const response = await fetch('http://localhost:5678/webhook/chat-locale', {
@@ -858,61 +818,75 @@
                     body: JSON.stringify({
                         message: msg,
                         sessionId: sessionId,
-                        action: currentMode
+                        action: currentMode // Questo viene letto dallo Switch2 in n8n
                     })
                 });
 
                 const data = await response.json();
-
-                // Rimuoviamo qualsiasi caricamento (blu o arancione)
                 hideLoading();
-                const anim = document.getElementById('status-anim-container');
-                if (anim) anim.remove();
 
-                // GESTIONE SCENARI RISPOSTA
                 if (data.status === 'generating') {
-                    // Mantieni la tua logica originale per il polling del Discovery
                     if (data.agent_message) appendMessage(data.agent_message, 'ai', false);
 
+                    // Creiamo l'elemento animato invece del messaggio e della barra
                     const animRow = document.createElement('div');
                     animRow.classList.add('message-row', 'ai-row');
-                    animRow.id = 'status-anim-container';
-                    animRow.innerHTML = `<div class="anim-generating">Generazione architettura in corso...</div>`;
+                    animRow.id = 'status-anim-container'; // ID unico per rimuoverlo dopo
+
+                    const animText = document.createElement('div');
+                    animText.classList.add('anim-generating');
+                    animText.innerText = "Generazione architettura in corso...";
+
+                    animRow.appendChild(animText);
                     chatHistory.appendChild(animRow);
                     chatHistory.scrollTop = chatHistory.scrollHeight;
 
                     avviaPolling('generating');
                 }
-                else if (data.status === 'proposal' && data.output) {
-                    // AGGIUNTO IL CONTROLLO && data.output per evitare il crash di marked()
-                    appendMessage(data.output, 'ai', false, true, true);
-                }
-                else if (data.output || data.agent_message) {
-                    // Gestione risposte testuali o chiarimenti
-                    const finalOutput = data.output || data.agent_message;
-                    let testoDisplay = typeof finalOutput === 'string'
-                        ? finalOutput.replace(/^[\s_]+|[\s_]+$/g, '')
-                        : JSON.stringify(finalOutput);
-                    appendMessage(testoDisplay, 'ai', false);
+                else if (data.status === 'refining') {
+                    if (data.agent_message) appendMessage(data.agent_message, 'ai', false);
+                    appendMessage("Provando a modificare l'architettura...", 'ai', false);
 
+                    const progressRow = document.createElement('div');
+                    progressRow.classList.add('message-row', 'ai-row');
+                    progressRow.id = 'fake-progress-row-draft';
+
+                    const progressContainer = document.createElement('div');
+                    progressContainer.classList.add('progress-container');
+
+                    const progressBar = document.createElement('div');
+                    progressBar.classList.add('progress-bar-fill');
+                    progressBar.style.transition = "width 30s linear";
+
+                    progressContainer.appendChild(progressBar);
+                    progressRow.appendChild(progressContainer);
+                    chatHistory.appendChild(progressRow);
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+                    setTimeout(() => { progressBar.style.width = '95%'; }, 50);
+                    avviaPolling('refining');
+                }
+                else {
+                    // FLUSSO NORMALE (es. l'Explainer ha risposto o il Modifier ha rifiutato la richiesta)
+                    if (data.output) {
+                        let testoDisplay = typeof data.output === 'string'
+                            ? data.output.replace(/^[\s_]+|[\s_]+$/g, '')
+                            : JSON.stringify(data.output);
+                        appendMessage(testoDisplay, 'ai', false);
+                    }
+
+                    // Poiché siamo nella fase di refinement (explain/modify), chiediamo sempre "Cosa vuoi fare ora?"
                     if (currentMode === 'explain' || currentMode === 'modify') {
                         promptModeSelection();
                     } else {
+                        // Se fossimo in Discovery, sblocchiamo normalmente
                         toggleInput(true);
                     }
-                }
-                else {
-                    // MESSAGGIO DI SICUREZZA SE IL SERVER RESTITUISCE 500 O VUOTO
-                    hideLoading();
-                    appendMessage("Il server ha risposto con un errore (500) o un contenuto vuoto. Controlla i workflow su n8n.", 'ai');
-                    toggleInput(true);
                 }
 
             } catch (error) {
                 console.error("Errore:", error);
                 hideLoading();
-                const anim = document.getElementById('status-anim-container');
-                if (anim) anim.remove();
                 appendMessage("Errore di comunicazione con il server.", 'ai');
                 toggleInput(true);
             }
@@ -925,7 +899,6 @@
                     const res = await fetch(`http://localhost:5678/webhook/check-status-locale?sessionId=${sessionId}`);
                     const checkData = await res.json();
 
-                    // Blocco Discovery: Identico al tuo originale, rimosse solo le parti di Refinement
                     if (tipoOperazione === 'generating' && checkData.discovery_json) {
                         clearInterval(pollingInterval);
 
@@ -933,9 +906,7 @@
                         const animElement = document.getElementById('status-anim-container');
                         if (animElement) animElement.remove();
 
-                        const parsedData = typeof checkData.discovery_json === 'string'
-                            ? JSON.parse(checkData.discovery_json)
-                            : checkData.discovery_json;
+                        const parsedData = JSON.parse(checkData.discovery_json);
 
                         if (parsedData.output) {
                             let testoDisplay = typeof parsedData.output === 'string'
@@ -950,6 +921,29 @@
 
                         appendMessage("Spero che questa architettura faccia al caso tuo! Se hai bisogno di modifiche o chiarimenti, chiedi pure.", 'ai', false);
 
+                        promptModeSelection();
+                    }
+                    else if (tipoOperazione === 'refining' && checkData.draft_json) {
+                        clearInterval(pollingInterval);
+                        const pRowDraft = document.getElementById('fake-progress-row-draft');
+                        if (pRowDraft) pRowDraft.remove();
+
+                        const parsedData = JSON.parse(checkData.draft_json);
+
+                        if (parsedData.architecture_json) {
+                            appendMessage(parsedData.architecture_json, 'ai', true, true);
+                        }
+                        appendMessage("Ecco la mia proposta di modifica. Controllala e decidi se confermarla o rifiutarla.", 'ai', false);
+                        // L'input resta bloccato in attesa della conferma/rifiuto (bottoni draft)
+                    }
+                    else if (tipoOperazione === 'refining' && checkData.draft_status === 'failed') {
+                        clearInterval(pollingInterval);
+                        const pRowDraft = document.getElementById('fake-progress-row-draft');
+                        if (pRowDraft) pRowDraft.remove();
+
+                        appendMessage("Ops! I controlli di sicurezza interni hanno bloccato questa modifica perché comprometteva la struttura del progetto.", 'ai', false);
+
+                        // Poiché la bozza è fallita, diamo di nuovo all'utente la possibilità di scegliere
                         promptModeSelection();
                     }
 

@@ -2,6 +2,4 @@ global:
   scrape_interval: 5s
   evaluation_interval: 5s
 
-# Le metriche arrivano via Remote Write dall'OTel Collector,
-# quindi Prometheus non ha bisogno di fare scraping diretto.
 scrape_configs: []

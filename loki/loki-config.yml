@@ -69,7 +69,7 @@ compactor:
   working_directory: /loki/compactor
   compaction_interval: 10m
 
-# Ruler evaluates rules and alerts (optional)
+# Ruler evaluates rules and alerts
 ruler:
   storage:
     type: local
